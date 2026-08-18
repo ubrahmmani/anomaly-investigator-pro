@@ -182,3 +182,9 @@
     cursor: pointer;
   }
 }
+
+/* Hide the Freebuff/Vly platform toolbar */
+[class*="vly-toolbar"],
+[id*="vly-toolbar"] {
+  display: none !important;
+}
