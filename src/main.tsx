@@ -13,8 +13,12 @@ import "./index.css";
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const Browse = lazy(() => import("./pages/Browse.tsx"));
+const Create = lazy(() => import("./pages/Create.tsx"));
 const Investigate = lazy(() => import("./pages/Investigate.tsx"));
+const InvestigationDetail = lazy(() => import("./pages/InvestigationDetail.tsx"));
 const Report = lazy(() => import("./pages/Report.tsx"));
+const Admin = lazy(() => import("./pages/Admin.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -127,8 +131,12 @@ createRoot(document.getElementById("root")!).render(
                 element={<AuthPage redirectAfterAuth="/dashboard" />}
               />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/browse" element={<Browse />} />
+              <Route path="/create" element={<Create />} />
               <Route path="/investigate" element={<Investigate />} />
+              <Route path="/investigation/:id" element={<InvestigationDetail />} />
               <Route path="/report" element={<Report />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

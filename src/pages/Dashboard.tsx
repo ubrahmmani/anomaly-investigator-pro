@@ -5,11 +5,20 @@ import { GridBackground } from "@/components/custom/GridBackground";
 import { MovingBorderButton } from "@/components/custom/MovingBorderButton";
 import { Sparkline } from "@/components/custom/Sparkline";
 import { dashboardMetrics } from "@/data/mockData";
-import { AlertTriangle, ArrowRight, TrendingDown, TrendingUp } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  TrendingDown,
+  TrendingUp,
+  Search,
+  Plus,
+  Shield,
+  Clock,
+  LayoutDashboard,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import logo from "@/assets/logo.svg";
 
-// Metric card config
 const metricCards: {
   key: keyof typeof dashboardMetrics;
   icon: LucideIcon;
@@ -28,24 +37,56 @@ export default function Dashboard() {
     <GridBackground>
       <div className="min-h-screen px-6 py-10">
         <div className="mx-auto max-w-6xl">
+          {/* Nav Bar */}
+          <motion.nav
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2.5">
+              <img src={logo} alt="Anomalo Investigator Pro" className="h-6 w-6" />
+              <span className="font-mono text-sm text-white/50 tracking-wider">
+                Anomalo Investigator Pro
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              {[
+                { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard", active: true },
+                { label: "Browse", icon: Search, path: "/browse" },
+                { label: "New", icon: Plus, path: "/create" },
+                { label: "Admin", icon: Shield, path: "/admin" },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => navigate(item.path)}
+                    className={
+                      item.active
+                        ? "flex items-center gap-1.5 rounded-lg bg-white/[0.08] px-3 py-1.5 text-xs font-medium text-white/70 transition-colors"
+                        : "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-white/30 transition-colors hover:bg-white/[0.05] hover:text-white/50"
+                    }
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.nav>
+
           {/* Header */}
           <motion.header
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mb-12"
+            className="mb-8"
           >
-            <div className="flex items-center gap-3 mb-2">
-              <img src={logo} alt="Logo" className="h-8 w-8" />
-              <span className="font-mono text-sm text-white/40 tracking-wider uppercase">
-                Anomaly Investigator
-              </span>
-            </div>
             <h1 className="text-3xl font-bold tracking-tight text-white">
-              Sales Dashboard
+              Good afternoon, Priya
             </h1>
             <p className="mt-1 text-sm text-white/40">
-              Week of August 1–7, 2026 &middot; Auto-refreshes every 5 minutes
+              Week of August 1–7, 2026 &middot; Last synced 2 minutes ago
             </p>
           </motion.header>
 
@@ -68,13 +109,11 @@ export default function Dashboard() {
                       : "group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 backdrop-blur-sm transition-colors hover:bg-white/[0.05]"
                   }
                 >
-                  {/* Anomaly glow */}
                   {isAnomaly && (
                     <div className="absolute inset-0 rounded-2xl bg-amber-500/5 blur-xl" />
                   )}
 
                   <div className="relative z-10">
-                    {/* Top row */}
                     <div className="mb-4 flex items-center justify-between">
                       <div
                         className="flex h-9 w-9 items-center justify-center rounded-lg"
@@ -83,7 +122,6 @@ export default function Dashboard() {
                         <Icon className="h-4.5 w-4.5" style={{ color }} />
                       </div>
 
-                      {/* Anomaly badge */}
                       {isAnomaly && (
                         <motion.div
                           initial={{ scale: 0.8, opacity: 0 }}
@@ -99,17 +137,14 @@ export default function Dashboard() {
                       )}
                     </div>
 
-                    {/* Label */}
                     <p className="text-xs font-medium text-white/40 mb-1">
                       {metric.label}
                     </p>
 
-                    {/* Value */}
                     <p className="font-mono text-2xl font-bold tracking-tight text-white mb-1">
                       {metric.value}
                     </p>
 
-                    {/* Change + sparkline row */}
                     <div className="flex items-center justify-between">
                       <span
                         className={
@@ -129,7 +164,6 @@ export default function Dashboard() {
                       />
                     </div>
 
-                    {/* Anomaly text */}
                     {isAnomaly && "anomalyText" in metric && (
                       <motion.p
                         initial={{ opacity: 0 }}
@@ -159,22 +193,62 @@ export default function Dashboard() {
               </div>
               <div className="flex-1">
                 <h3 className="text-sm font-semibold text-white">
-                  2 anomalies detected
+                  2 anomalies detected this week
                 </h3>
                 <p className="mt-1 text-xs text-white/40 leading-relaxed">
-                  Revenue dropped 30% this week, driven by a sharp decline in
-                  Electronics sales in South Asia. Top category performance also
-                  flagged. Click below to start a full investigation.
+                  Revenue dropped 30%, driven by a sharp decline in Electronics
+                  sales in South Asia. Top category performance also flagged.
+                  Deploy the agent swarm to find out why — one click, under two
+                  minutes.
                 </p>
               </div>
             </div>
+          </motion.div>
+
+          {/* Quick Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.4 }}
+            className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3"
+          >
+            <button
+              onClick={() => navigate("/create")}
+              className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 text-left transition-all hover:border-white/[0.12] hover:bg-white/[0.05]"
+            >
+              <Plus className="h-5 w-5 text-violet-400/60" />
+              <div>
+                <p className="text-xs font-medium text-white/60">New Investigation</p>
+                <p className="text-[10px] text-white/25">Deploy agents on a fresh anomaly</p>
+              </div>
+            </button>
+            <button
+              onClick={() => navigate("/browse")}
+              className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 text-left transition-all hover:border-white/[0.12] hover:bg-white/[0.05]"
+            >
+              <Search className="h-5 w-5 text-cyan-400/60" />
+              <div>
+                <p className="text-xs font-medium text-white/60">Browse Catalog</p>
+                <p className="text-[10px] text-white/25">Search past investigations</p>
+              </div>
+            </button>
+            <button
+              onClick={() => navigate("/admin")}
+              className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 text-left transition-all hover:border-white/[0.12] hover:bg-white/[0.05]"
+            >
+              <Shield className="h-5 w-5 text-emerald-400/60" />
+              <div>
+                <p className="text-xs font-medium text-white/60">Admin Panel</p>
+                <p className="text-[10px] text-white/25">Manage users and settings</p>
+              </div>
+            </button>
           </motion.div>
 
           {/* CTA Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.4 }}
+            transition={{ delay: 0.85, duration: 0.4 }}
             className="mt-8 flex justify-center"
           >
             <MovingBorderButton
@@ -187,7 +261,7 @@ export default function Dashboard() {
             </MovingBorderButton>
           </motion.div>
 
-          {/* Footer note */}
+          {/* Footer */}
           <p className="mt-8 text-center text-[11px] text-white/20">
             Powered by Exasol &middot; All analysis runs on Exasol Personal
           </p>

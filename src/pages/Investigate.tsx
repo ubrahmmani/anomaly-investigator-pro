@@ -6,7 +6,15 @@ import { GridBackground } from "@/components/custom/GridBackground";
 import { StepLoader } from "@/components/custom/StepLoader";
 import { TerminalTrace } from "@/components/custom/TerminalTrace";
 import { investigationSteps, traceLogs } from "@/data/mockData";
-import { ArrowLeft, Zap } from "lucide-react";
+import {
+  ArrowLeft,
+  Zap,
+  Search,
+  Plus,
+  Shield,
+  LayoutDashboard,
+} from "lucide-react";
+import logo from "@/assets/logo.svg";
 
 export default function Investigate() {
   const navigate = useNavigate();
@@ -16,36 +24,26 @@ export default function Investigate() {
   const [isComplete, setIsComplete] = useState(false);
 
   const runInvestigation = useCallback(async () => {
-    // Simulate step progression
     for (let i = 0; i < investigationSteps.length; i++) {
       setActiveStepIndex(i);
-
-      // Wait for the step's duration
       await new Promise((resolve) =>
         setTimeout(resolve, investigationSteps[i].duration)
       );
-
       setCompletedSteps((prev) => [...prev, i]);
     }
-
-    // After all steps complete, show complete state
     setActiveStepIndex(-1);
     setIsComplete(true);
   }, []);
 
-  // Stream trace logs
   useEffect(() => {
     if (visibleLogs >= traceLogs.length) return;
-
     const log = traceLogs[visibleLogs];
     const timer = setTimeout(() => {
       setVisibleLogs((prev) => prev + 1);
     }, log.delay === 0 ? 300 : traceLogs[visibleLogs]?.delay - (traceLogs[visibleLogs - 1]?.delay || 0) || 600);
-
     return () => clearTimeout(timer);
   }, [visibleLogs]);
 
-  // Start investigation on mount
   useEffect(() => {
     const timer = setTimeout(() => runInvestigation(), 500);
     return () => clearTimeout(timer);
@@ -55,6 +53,44 @@ export default function Investigate() {
     <GridBackground>
       <div className="min-h-screen px-6 py-10">
         <div className="mx-auto max-w-6xl">
+          {/* Nav Bar */}
+          <motion.nav
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2.5">
+              <img src={logo} alt="Anomalo Investigator Pro" className="h-6 w-6" />
+              <span className="font-mono text-sm text-white/50 tracking-wider">
+                Anomalo Investigator Pro
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              {[
+                { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+                { label: "Browse", icon: Search, path: "/browse" },
+                { label: "New", icon: Plus, path: "/create" },
+                { label: "Admin", icon: Shield, path: "/admin" },
+              ].map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => navigate(item.path)}
+                    className={
+                      item.path === "/investigate"
+                        ? "flex items-center gap-1.5 rounded-lg bg-white/[0.08] px-3 py-1.5 text-xs font-medium text-white/70 transition-colors"
+                        : "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-white/30 transition-colors hover:bg-white/[0.05] hover:text-white/50"
+                    }
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.nav>
+
           {/* Header */}
           <motion.header
             initial={{ opacity: 0, y: -20 }}
@@ -98,7 +134,6 @@ export default function Investigate() {
                 completedIndices={completedSteps}
               />
 
-              {/* Completion state */}
               {isComplete && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -121,7 +156,6 @@ export default function Investigate() {
                 </motion.div>
               )}
 
-              {/* Status info */}
               <div className="mt-6 rounded-xl border border-white/5 bg-white/[0.02] p-4">
                 <div className="text-[10px] font-medium text-white/30 uppercase tracking-wider mb-3">
                   Query Performance
