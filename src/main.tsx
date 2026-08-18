@@ -7,6 +7,7 @@ import { ConvexReactClient } from "convex/react";
 import React, { StrictMode, useEffect, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router";
+import { AnimatePresence, motion } from "framer-motion";
 import "./index.css";
 
 // Lazy load route components for better code splitting
@@ -114,6 +115,38 @@ function RouteSyncer() {
 }
 
 
+/** Page transition wrapper — Motion fades between routes */
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.2, ease: "easeInOut" }}
+      >
+        <Routes location={location}>
+          <Route path="/" element={<Landing />} />
+          <Route
+            path="/auth"
+            element={<AuthPage redirectAfterAuth="/dashboard" />}
+          />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/browse" element={<Browse />} />
+          <Route path="/create" element={<Create />} />
+          <Route path="/investigate" element={<Investigate />} />
+          <Route path="/investigation/:id" element={<InvestigationDetail />} />
+          <Route path="/report" element={<Report />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <RootErrorBoundary>
@@ -124,21 +157,7 @@ createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
           <RouteSyncer />
           <Suspense fallback={<RouteLoading />}>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route
-                path="/auth"
-                element={<AuthPage redirectAfterAuth="/dashboard" />}
-              />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/browse" element={<Browse />} />
-              <Route path="/create" element={<Create />} />
-              <Route path="/investigate" element={<Investigate />} />
-              <Route path="/investigation/:id" element={<InvestigationDetail />} />
-              <Route path="/report" element={<Report />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AnimatedRoutes />
           </Suspense>
         </BrowserRouter>
         <Toaster />

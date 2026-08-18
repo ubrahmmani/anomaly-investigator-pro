@@ -1,9 +1,11 @@
 "use client";
-import { useRef } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
 import { GridBackground } from "@/components/custom/GridBackground";
-import GlareHover from "@/components/GlareHover";
+import { LineChart } from "@/components/charts/line-chart";
+import { Line } from "@/components/charts/line";
+import { Grid } from "@/components/charts/grid";
+import { XAxis } from "@/components/charts/x-axis";
 import { reportData, chartPlaceholder, comments } from "@/data/mockData";
 import {
   ArrowLeft,
@@ -102,8 +104,15 @@ export default function Report() {
             </div>
           </motion.header>
 
-          {/* Main Report Card — subtle tilt on hover */}
-          <ReportCardTilt delay={0.1}>
+          {/* Main Report Card — Motion tilt on hover */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ rotateX: -1, rotateY: 1, scale: 1.005 }}
+            transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 20 }}
+            style={{ perspective: 800 }}
+            className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 backdrop-blur-sm"
+          >
             <div className="mb-4 flex items-center gap-2">
               <span className="rounded-full bg-violet-500/20 px-2.5 py-1 text-[11px] font-medium text-violet-300">
                 94% Confidence
@@ -122,7 +131,7 @@ export default function Report() {
                 <p key={i}>{para}</p>
               ))}
             </div>
-          </ReportCardTilt>
+          </motion.div>
 
           {/* Key Findings Grid */}
           <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -151,7 +160,7 @@ export default function Report() {
             })}
           </div>
 
-          {/* Chart */}
+          {/* Chart — Bklit LineChart: Revenue vs Price before/after Aug 5 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -164,61 +173,17 @@ export default function Report() {
                   {chartPlaceholder.title}
                 </h3>
                 <p className="text-[11px] text-white/30 mt-0.5">
-                  Aug 1–7, 2026 &middot; Price increase on Aug 5 highlighted
+                  Aug 1–7, 2026 · Price increase on Aug 5 highlighted
                 </p>
               </div>
+              <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] text-white/30">
+                Bklit LineChart
+              </span>
             </div>
-
-            <div className="flex items-end gap-3 h-40 mt-4">
-              {chartPlaceholder.data.map((d, i) => {
-                const maxRev = Math.max(
-                  ...chartPlaceholder.data.map((x) => x.revenue)
-                );
-                const heightPct = (d.revenue / maxRev) * 100;
-                const isPostIncrease = i >= 4;
-
-                return (
-                  <div
-                    key={d.date}
-                    className="flex flex-1 flex-col items-center gap-2"
-                  >
-                    <span className="font-mono text-[10px] text-white/30">
-                      {(d.revenue / 1000).toFixed(0)}k
-                    </span>
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: `${heightPct}%` }}
-                      transition={{
-                        delay: 0.7 + i * 0.05,
-                        duration: 0.4,
-                        type: "spring",
-                      }}
-                      className={
-                        "w-full rounded-t-md " +
-                        (isPostIncrease ? "bg-red-500/60" : "bg-violet-500/60")
-                      }
-                    />
-                    <span className="font-mono text-[10px] text-white/30">
-                      {d.date.replace("Aug ", "")}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="mt-4 flex items-center gap-4 text-[10px] text-white/30">
-              <div className="flex items-center gap-1.5">
-                <div className="h-2 w-2 rounded-full bg-violet-500/60" />
-                Pre-increase
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="h-2 w-2 rounded-full bg-red-500/60" />
-                Post-increase (Aug 5+)
-              </div>
-            </div>
+            <ReportLineChart />
           </motion.div>
 
-          {/* Supporting Evidence Cards */}
+          {/* Supporting Evidence Cards — Motion hover glow */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -234,34 +199,22 @@ export default function Report() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.7 + i * 0.08 }}
+                  whileHover={{ scale: 1.02, borderColor: "rgba(139,92,246,0.2)" }}
+                  className="group relative overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 backdrop-blur-sm transition-colors"
                 >
-                  <GlareHover
-                    width="100%"
-                    height="100%"
-                    background="rgba(255,255,255,0.03)"
-                    borderRadius="12px"
-                    borderColor="rgba(255,255,255,0.06)"
-                    glareColor="#8b5cf6"
-                    glareOpacity={0.12}
-                    glareAngle={-45}
-                    glareSize={200}
-                    transitionDuration={500}
-                    className="!p-0"
-                  >
-                    <div className="p-4 text-left w-full">
-                      <div className="mb-2 flex items-center justify-between">
-                        <span className="text-xs font-medium text-white/60">
-                          {item.title}
-                        </span>
-                        <span className="font-mono text-xs font-bold text-violet-400">
-                          {item.metric}
-                        </span>
-                      </div>
-                      <p className="text-[11px] leading-relaxed text-white/35">
-                        {item.content}
-                      </p>
+                  <div className="relative z-10">
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-xs font-medium text-white/60">
+                        {item.title}
+                      </span>
+                      <span className="font-mono text-xs font-bold text-violet-400">
+                        {item.metric}
+                      </span>
                     </div>
-                  </GlareHover>
+                    <p className="text-[11px] leading-relaxed text-white/35">
+                      {item.content}
+                    </p>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -307,14 +260,15 @@ export default function Report() {
               ))}
             </div>
 
+            {/* Future: Replace with @kokonutui/ai-prompt for follow-up question bar */}
             <div className="mt-4 flex gap-2">
               <input
                 type="text"
-                placeholder="Add a comment..."
+                placeholder="Ask a follow-up question..."
                 className="flex-1 rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-xs text-white placeholder-white/20 outline-none focus:border-violet-500/30"
               />
               <button className="rounded-lg bg-violet-500/20 px-3 py-2 text-xs font-medium text-violet-300 transition-colors hover:bg-violet-500/30">
-                Post
+                Ask
               </button>
             </div>
           </motion.div>
@@ -346,7 +300,7 @@ export default function Report() {
           </motion.div>
 
           <p className="mt-8 text-center text-[11px] text-white/20">
-            Generated by Anomalo Investigator Pro &middot; Powered by Exasol
+            Generated by Anomalo Investigator Pro · Powered by Exasol
           </p>
         </div>
       </div>
@@ -354,50 +308,39 @@ export default function Report() {
   );
 }
 
-/** Subtle 3D tilt on the report card — uses the same spring primitives as TiltedCard
- *  but wraps arbitrary content (not just images). */
-function ReportCardTilt({
-  children,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  delay?: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const rotateX = useSpring(0, { damping: 30, stiffness: 100, mass: 2 });
-  const rotateY = useSpring(0, { damping: 30, stiffness: 100, mass: 2 });
-
-  function handleMouse(e: React.MouseEvent<HTMLDivElement>) {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left - rect.width / 2;
-    const offsetY = e.clientY - rect.top - rect.height / 2;
-    rotateX.set((offsetY / (rect.height / 2)) * -4);
-    rotateY.set((offsetX / (rect.width / 2)) * 4);
-  }
-
-  function handleMouseLeave() {
-    rotateX.set(0);
-    rotateY.set(0);
-  }
+/** Bklit LineChart — revenue vs price before/after the Aug 5 increase */
+function ReportLineChart() {
+  const chartData = [
+    { date: "Aug 1", revenue: 45000, price: 520 },
+    { date: "Aug 2", revenue: 47000, price: 520 },
+    { date: "Aug 3", revenue: 44000, price: 520 },
+    { date: "Aug 4", revenue: 46000, price: 520 },
+    { date: "Aug 5", revenue: 38000, price: 598 },
+    { date: "Aug 6", revenue: 28000, price: 598 },
+    { date: "Aug 7", revenue: 25000, price: 598 },
+  ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      ref={ref}
-      onMouseMove={handleMouse}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        rotateX,
-        rotateY,
-        transformStyle: "preserve-3d",
-        perspective: 800,
-      }}
-      className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 backdrop-blur-sm will-change-transform"
-    >
-      {children}
-    </motion.div>
+    <div className="h-[260px] w-full">
+      <LineChart
+        data={chartData}
+        xDataKey="date"
+        aspectRatio="2 / 1"
+        loadingLabel="Loading report data..."
+      >
+        <Grid horizontal vertical={false} numTicksRows={5} />
+        <XAxis />
+        <Line
+          dataKey="revenue"
+          stroke="#8b5cf6"
+          strokeWidth={2}
+        />
+        <Line
+          dataKey="price"
+          stroke="#f59e0b"
+          strokeWidth={2}
+        />
+      </LineChart>
+    </div>
   );
 }

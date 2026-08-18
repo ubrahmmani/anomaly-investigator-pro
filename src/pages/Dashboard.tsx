@@ -1,9 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
-import Threads from "@/components/Threads";
-import SpotlightCard from "@/components/SpotlightCard";
-import ClickSpark from "@/components/ClickSpark";
 import { Sparkline } from "@/components/custom/Sparkline";
 import { dashboardMetrics } from "@/data/mockData";
 import {
@@ -35,9 +32,9 @@ export default function Dashboard() {
 
   return (
     <div className="relative min-h-screen">
-      {/* Threads background — subtle, low-opacity, fixed behind content */}
-      <div className="fixed inset-0 z-0 opacity-[0.12]">
-        <Threads color={[0.5, 0.4, 0.9]} amplitude={0.6} distance={0.3} />
+      {/* Subtle radial gradient background — no external lib needed */}
+      <div className="fixed inset-0 z-0 bg-[#08080c]">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,80,220,0.08),transparent)]" />
       </div>
 
       <div className="relative z-10 px-6 py-10">
@@ -95,7 +92,7 @@ export default function Dashboard() {
             </p>
           </motion.header>
 
-          {/* Bento Grid — SpotlightCard for each metric */}
+          {/* Bento Grid — Motion-staggered metric cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {metricCards.map(({ key, icon: Icon, color }, i) => {
               const metric = dashboardMetrics[key];
@@ -108,90 +105,103 @@ export default function Dashboard() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + i * 0.08, duration: 0.4 }}
+                  className={
+                    isAnomaly
+                      ? "group relative rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/[0.08] to-red-500/[0.04] p-5 backdrop-blur-sm"
+                      : "group relative rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 backdrop-blur-sm transition-colors hover:bg-white/[0.05]"
+                  }
                 >
-                  <SpotlightCard
-                    className={
-                      isAnomaly
-                        ? "!rounded-2xl !border !border-amber-500/30 !bg-gradient-to-br !from-amber-500/[0.08] !to-red-500/[0.04] !p-5"
-                        : "!rounded-2xl !border !border-white/[0.06] !bg-white/[0.03] !p-5"
-                    }
-                    spotlightColor={
-                      isAnomaly
-                        ? "rgba(245, 158, 11, 0.15)"
-                        : "rgba(139, 92, 246, 0.12)"
-                    }
-                  >
-                    {isAnomaly && (
-                      <div className="absolute inset-0 rounded-2xl bg-amber-500/5 blur-xl" />
-                    )}
+                  {isAnomaly && (
+                    <div className="absolute inset-0 rounded-2xl bg-amber-500/5 blur-xl" />
+                  )}
 
-                    <div className="relative z-10">
-                      <div className="mb-4 flex items-center justify-between">
-                        <div
-                          className="flex h-9 w-9 items-center justify-center rounded-lg"
-                          style={{ backgroundColor: `${color}15` }}
-                        >
-                          <Icon className="h-4.5 w-4.5" style={{ color }} />
-                        </div>
-
-                        {isAnomaly && (
-                          <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: 0.5 + i * 0.1, type: "spring" }}
-                            className="flex items-center gap-1.5 rounded-full bg-amber-500/20 px-2.5 py-1"
-                          >
-                            <AlertTriangle className="h-3 w-3 text-amber-400" />
-                            <span className="text-[10px] font-medium text-amber-300">
-                              Anomaly
-                            </span>
-                          </motion.div>
-                        )}
+                  <div className="relative z-10">
+                    <div className="mb-4 flex items-center justify-between">
+                      <div
+                        className="flex h-9 w-9 items-center justify-center rounded-lg"
+                        style={{ backgroundColor: `${color}15` }}
+                      >
+                        <Icon className="h-4.5 w-4.5" style={{ color }} />
                       </div>
 
-                      <p className="text-xs font-medium text-white/40 mb-1">
-                        {metric.label}
-                      </p>
-
-                      <p className="font-mono text-2xl font-bold tracking-tight text-white mb-1">
-                        {metric.value}
-                      </p>
-
-                      <div className="flex items-center justify-between">
-                        <span
-                          className={
-                            isNegative
-                              ? "text-xs font-medium text-red-400"
-                              : "text-xs font-medium text-emerald-400"
-                          }
+                      {isAnomaly && (
+                        <motion.div
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ delay: 0.5 + i * 0.1, type: "spring" }}
+                          className="flex items-center gap-1.5 rounded-full bg-amber-500/20 px-2.5 py-1"
                         >
-                          {isNegative ? "↓" : "↑"} {Math.abs(metric.change)}%
-                          this week
-                        </span>
-
-                        <Sparkline
-                          data={metric.trend}
-                          color={isNegative ? "#ef4444" : color}
-                          className="h-6 w-16"
-                        />
-                      </div>
-
-                      {isAnomaly && "anomalyText" in metric && (
-                        <motion.p
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.7 }}
-                          className="mt-3 rounded-lg bg-amber-500/10 px-3 py-1.5 text-[11px] text-amber-300/80"
-                        >
-                          {metric.anomalyText}
-                        </motion.p>
+                          <AlertTriangle className="h-3 w-3 text-amber-400" />
+                          <span className="text-[10px] font-medium text-amber-300">
+                            Anomaly
+                          </span>
+                        </motion.div>
                       )}
                     </div>
-                  </SpotlightCard>
+
+                    <p className="text-xs font-medium text-white/40 mb-1">
+                      {metric.label}
+                    </p>
+
+                    <p className="font-mono text-2xl font-bold tracking-tight text-white mb-1">
+                      {metric.value}
+                    </p>
+
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={
+                          isNegative
+                            ? "text-xs font-medium text-red-400"
+                            : "text-xs font-medium text-emerald-400"
+                        }
+                      >
+                        {isNegative ? "↓" : "↑"} {Math.abs(metric.change)}%
+                        this week
+                      </span>
+
+                      <Sparkline
+                        data={metric.trend}
+                        color={isNegative ? "#ef4444" : color}
+                        className="h-6 w-16"
+                      />
+                    </div>
+
+                    {isAnomaly && "anomalyText" in metric && (
+                      <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.7 }}
+                        className="mt-3 rounded-lg bg-amber-500/10 px-3 py-1.5 text-[11px] text-amber-300/80"
+                      >
+                        {metric.anomalyText}
+                      </motion.p>
+                    )}
+                  </div>
                 </motion.div>
               );
             })}
           </div>
+
+          {/* Revenue Area Chart — Bklit UI */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.4 }}
+            className="mt-6 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 backdrop-blur-sm"
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-white">Revenue Trend</h3>
+                <p className="text-[11px] text-white/30 mt-0.5">
+                  Aug 1–7, 2026 · Anomaly highlighted in red
+                </p>
+              </div>
+              <span className="rounded-full bg-white/5 px-2.5 py-1 text-[10px] text-white/30">
+                Bklit AreaChart
+              </span>
+            </div>
+            <DashboardAreaChart />
+          </motion.div>
 
           {/* Anomaly Summary Bar */}
           <motion.div
@@ -247,29 +257,21 @@ export default function Dashboard() {
             })}
           </motion.div>
 
-          {/* CTA Button — ClickSpark on click */}
+          {/* CTA Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.85, duration: 0.4 }}
             className="mt-8 flex justify-center"
           >
-            <ClickSpark
-              sparkColor="#8b5cf6"
-              sparkSize={12}
-              sparkRadius={20}
-              sparkCount={10}
-              duration={500}
+            <button
+              onClick={() => navigate("/investigate")}
+              className="group flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-violet-500/20 transition-all hover:shadow-violet-500/30 hover:brightness-110"
             >
-              <button
-                onClick={() => navigate("/investigate")}
-                className="group flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-500 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-violet-500/20 transition-all hover:shadow-violet-500/30 hover:brightness-110"
-              >
-                <span className="text-lg">⚡</span>
-                Start Investigation
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </button>
-            </ClickSpark>
+              <span className="text-lg">⚡</span>
+              Start Investigation
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </button>
           </motion.div>
 
           {/* Footer */}
@@ -278,6 +280,45 @@ export default function Dashboard() {
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+import { AreaChart } from "@/components/charts/area-chart";
+import { Area } from "@/components/charts/area";
+import { Grid } from "@/components/charts/grid";
+import { XAxis } from "@/components/charts/x-axis";
+
+/** Bklit AreaChart — revenue trend with anomaly zone highlighted */
+function DashboardAreaChart() {
+
+  const chartData = [
+    { date: "Aug 1", revenue: 198000, isAnomaly: false },
+    { date: "Aug 2", revenue: 205000, isAnomaly: false },
+    { date: "Aug 3", revenue: 192000, isAnomaly: false },
+    { date: "Aug 4", revenue: 210000, isAnomaly: false },
+    { date: "Aug 5", revenue: 168000, isAnomaly: true },
+    { date: "Aug 6", revenue: 142000, isAnomaly: true },
+    { date: "Aug 7", revenue: 135000, isAnomaly: true },
+  ];
+
+  return (
+    <div className="h-[220px] w-full">
+      <AreaChart
+        data={chartData}
+        xDataKey="date"
+        aspectRatio="3 / 1"
+        loadingLabel="Loading revenue data..."
+      >
+        <Grid horizontal vertical={false} numTicksRows={5} />
+        <XAxis />
+        <Area
+          dataKey="revenue"
+          fill="rgba(139, 92, 246, 0.3)"
+          stroke="#8b5cf6"
+          strokeWidth={2}
+        />
+      </AreaChart>
     </div>
   );
 }
