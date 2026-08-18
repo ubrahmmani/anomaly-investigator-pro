@@ -112,10 +112,7 @@ export default function Dashboard() {
             transition={{ duration: 0.5 }}
             className="mb-8"
           >
-            <h1 className="text-2xl font-semibold tracking-tight text-white">
-              Good afternoon, Priya
-            </h1>
-            <p className="mt-1 font-mono text-xs text-white/30">
+            <p className="font-mono text-xs text-white/30">
               Week of August 1–7, 2026 · Last synced 2 min ago
             </p>
           </motion.header>
