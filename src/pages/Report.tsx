@@ -1,7 +1,9 @@
 "use client";
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import { useNavigate } from "react-router";
 import { GridBackground } from "@/components/custom/GridBackground";
+import GlareHover from "@/components/GlareHover";
 import { reportData, chartPlaceholder, comments } from "@/data/mockData";
 import {
   ArrowLeft,
@@ -100,13 +102,8 @@ export default function Report() {
             </div>
           </motion.header>
 
-          {/* Main Report Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 backdrop-blur-sm"
-          >
+          {/* Main Report Card — subtle tilt on hover */}
+          <ReportCardTilt delay={0.1}>
             <div className="mb-4 flex items-center gap-2">
               <span className="rounded-full bg-violet-500/20 px-2.5 py-1 text-[11px] font-medium text-violet-300">
                 94% Confidence
@@ -125,7 +122,7 @@ export default function Report() {
                 <p key={i}>{para}</p>
               ))}
             </div>
-          </motion.div>
+          </ReportCardTilt>
 
           {/* Key Findings Grid */}
           <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -237,23 +234,34 @@ export default function Report() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.7 + i * 0.08 }}
-                  className="group relative overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 backdrop-blur-sm transition-all duration-300 hover:border-violet-500/20 hover:bg-white/[0.05]"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/0 to-violet-500/0 transition-colors group-hover:from-violet-500/5 group-hover:to-transparent" />
-
-                  <div className="relative z-10">
-                    <div className="mb-2 flex items-center justify-between">
-                      <span className="text-xs font-medium text-white/60">
-                        {item.title}
-                      </span>
-                      <span className="font-mono text-xs font-bold text-violet-400">
-                        {item.metric}
-                      </span>
+                  <GlareHover
+                    width="100%"
+                    height="100%"
+                    background="rgba(255,255,255,0.03)"
+                    borderRadius="12px"
+                    borderColor="rgba(255,255,255,0.06)"
+                    glareColor="#8b5cf6"
+                    glareOpacity={0.12}
+                    glareAngle={-45}
+                    glareSize={200}
+                    transitionDuration={500}
+                    className="!p-0"
+                  >
+                    <div className="p-4 text-left w-full">
+                      <div className="mb-2 flex items-center justify-between">
+                        <span className="text-xs font-medium text-white/60">
+                          {item.title}
+                        </span>
+                        <span className="font-mono text-xs font-bold text-violet-400">
+                          {item.metric}
+                        </span>
+                      </div>
+                      <p className="text-[11px] leading-relaxed text-white/35">
+                        {item.content}
+                      </p>
                     </div>
-                    <p className="text-[11px] leading-relaxed text-white/35">
-                      {item.content}
-                    </p>
-                  </div>
+                  </GlareHover>
                 </motion.div>
               ))}
             </div>
@@ -343,5 +351,53 @@ export default function Report() {
         </div>
       </div>
     </GridBackground>
+  );
+}
+
+/** Subtle 3D tilt on the report card — uses the same spring primitives as TiltedCard
+ *  but wraps arbitrary content (not just images). */
+function ReportCardTilt({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const rotateX = useSpring(0, { damping: 30, stiffness: 100, mass: 2 });
+  const rotateY = useSpring(0, { damping: 30, stiffness: 100, mass: 2 });
+
+  function handleMouse(e: React.MouseEvent<HTMLDivElement>) {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left - rect.width / 2;
+    const offsetY = e.clientY - rect.top - rect.height / 2;
+    rotateX.set((offsetY / (rect.height / 2)) * -4);
+    rotateY.set((offsetX / (rect.width / 2)) * 4);
+  }
+
+  function handleMouseLeave() {
+    rotateX.set(0);
+    rotateY.set(0);
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+      ref={ref}
+      onMouseMove={handleMouse}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+        perspective: 800,
+      }}
+      className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 backdrop-blur-sm will-change-transform"
+    >
+      {children}
+    </motion.div>
   );
 }

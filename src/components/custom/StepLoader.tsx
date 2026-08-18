@@ -2,6 +2,7 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Eye, Search, Brain, FileText, Check } from "lucide-react";
+import DecryptedText from "@/components/DecryptedText";
 
 const iconMap: Record<string, React.ElementType> = {
   eye: Eye,
@@ -86,7 +87,20 @@ export function StepLoader({
                   !isActive && !isCompleted && "text-white/30"
                 )}
               >
-                {step.label}
+                {isActive ? (
+                  <DecryptedText
+                    text={step.label}
+                    speed={40}
+                    maxIterations={8}
+                    sequential
+                    revealDirection="start"
+                    animateOn="view"
+                    className="text-foreground"
+                    encryptedClassName="text-violet-400/50"
+                  />
+                ) : (
+                  step.label
+                )}
               </div>
               <div
                 className={cn(

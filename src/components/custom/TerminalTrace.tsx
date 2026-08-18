@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef } from "react";
 
 interface LogLine {
@@ -48,23 +48,25 @@ export function TerminalTrace({
         ref={containerRef}
         className="h-[400px] overflow-y-auto p-4 font-mono text-[13px] leading-relaxed"
       >
-        {logs.slice(0, visibleCount).map((log, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.15 }}
-            className="flex gap-3"
-          >
-            <span className="shrink-0 text-white/20">
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <span className={cn("shrink-0", agentColors[log.agent] || "text-white/50")}>
-              [{log.agent}]
-            </span>
-            <span className="text-white/70">{log.message}</span>
-          </motion.div>
-        ))}
+        <AnimatePresence mode="popLayout">
+          {logs.slice(0, visibleCount).map((log, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -8, filter: "blur(4px)" }}
+              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="flex gap-3"
+            >
+              <span className="shrink-0 text-white/20">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className={cn("shrink-0", agentColors[log.agent] || "text-white/50")}>
+                [{log.agent}]
+              </span>
+              <span className="text-white/70">{log.message}</span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
 
         {/* Blinking cursor */}
         {visibleCount < logs.length && (
