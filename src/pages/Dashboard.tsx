@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
 import { Sparkline } from "@/components/custom/Sparkline";
 import { dashboardMetrics } from "@/data/mockData";
+import AcidSquares from "@/components/AcidSquares";
 import {
   AlertTriangle,
   ArrowRight,
@@ -34,8 +35,35 @@ export default function Dashboard() {
 
   return (
     <div className="relative min-h-screen">
-      {/* Background — near-black, no gradient tint */}
-      <div className="fixed inset-0 z-0 bg-[#09090b]" />
+      {/* Background — AcidSquares effect at low opacity over near-black */}
+      <div className="fixed inset-0 z-0 bg-[#09090b]">
+        <div className="absolute inset-0 opacity-[0.15]">
+          <AcidSquares
+            color1="#5227FF"
+            color2="#A855F7"
+            color3="#FFFFFF"
+            detail="medium"
+            speed={0.7}
+            waveDepth={1}
+            zoom={1.3}
+            density={10}
+            glow={1}
+            exposure={2700}
+            spread={0.3}
+            stepSize={0.002}
+            colorShift={0}
+            contrast={1}
+            brightness={1}
+            blur={0}
+            opacity={1}
+            grain
+            grainIntensity={0.05}
+            mouseInteraction
+            mouseRadius={0.35}
+            mouseStrength={0.1}
+          />
+        </div>
+      </div>
 
       <div className="relative z-10 px-6 py-10">
         <div className="mx-auto max-w-6xl">
