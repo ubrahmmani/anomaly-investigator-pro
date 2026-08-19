@@ -10,10 +10,10 @@ interface LogLine {
 }
 
 const agentColors: Record<string, string> = {
-  Watcher: "text-amber-400",
-  Investigator: "text-cyan-400",
-  Reasoner: "text-violet-400",
-  Reporter: "text-emerald-400",
+  Watcher: "text-amber-400/60",
+  Investigator: "text-blue-400/60",
+  Reasoner: "text-purple-400/60",
+  Reporter: "text-emerald-400/60",
 };
 
 export function TerminalTrace({
@@ -32,13 +32,15 @@ export function TerminalTrace({
   }, [visibleCount]);
 
   return (
-    <div className="rounded-xl border border-white/5 bg-[#0a0a0f]">
-      {/* Terminal header */}
-      <div className="flex items-center gap-2 border-b border-white/5 px-4 py-2.5">
-        <div className="h-3 w-3 rounded-full bg-red-500/80" />
-        <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
-        <div className="h-3 w-3 rounded-full bg-green-500/80" />
-        <span className="ml-2 font-mono text-xs text-white/30">
+    <div className="border border-white/[0.06] bg-[#0c0c10]">
+      {/* Header */}
+      <div className="flex items-center gap-2 border-b border-white/[0.04] px-4 py-2">
+        <div className="flex gap-1">
+          <div className="h-2 w-2 rounded-full bg-white/10" />
+          <div className="h-2 w-2 rounded-full bg-white/10" />
+          <div className="h-2 w-2 rounded-full bg-white/10" />
+        </div>
+        <span className="ml-1 font-mono text-[10px] text-white/25">
           agent-trace.log
         </span>
       </div>
@@ -46,38 +48,37 @@ export function TerminalTrace({
       {/* Log output */}
       <div
         ref={containerRef}
-        className="h-[400px] overflow-y-auto p-4 font-mono text-[13px] leading-relaxed"
+        className="h-[400px] overflow-y-auto p-4 font-mono text-[11px] leading-relaxed"
       >
         <AnimatePresence mode="popLayout">
           {logs.slice(0, visibleCount).map((log, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, x: -8, filter: "blur(4px)" }}
-              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className="flex gap-3"
+              initial={{ opacity: 0, x: -6 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="flex gap-3 py-0.5"
             >
-              <span className="shrink-0 text-white/20">
+              <span className="shrink-0 text-white/12 w-5 text-right">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span className={cn("shrink-0", agentColors[log.agent] || "text-white/50")}>
-                [{log.agent}]
+              <span className={cn("shrink-0 w-24", agentColors[log.agent] || "text-white/30")}>
+                {log.agent}
               </span>
-              <span className="text-white/70">{log.message}</span>
+              <span className="text-white/40">{log.message}</span>
             </motion.div>
           ))}
         </AnimatePresence>
 
-        {/* Blinking cursor */}
         {visibleCount < logs.length && (
-          <div className="flex gap-3">
-            <span className="shrink-0 text-white/20">
+          <div className="flex gap-3 py-0.5">
+            <span className="shrink-0 text-white/12 w-5 text-right">
               {String(visibleCount + 1).padStart(2, "0")}
             </span>
             <motion.span
               animate={{ opacity: [1, 0, 1] }}
               transition={{ repeat: Infinity, duration: 0.8 }}
-              className="h-4 w-2 bg-violet-400"
+              className="h-3.5 w-1.5 bg-amber-500/50"
             />
           </div>
         )}

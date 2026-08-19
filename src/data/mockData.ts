@@ -6,44 +6,144 @@
 // ─── Brand ───────────────────────────────────────────────────────────────────
 export const brand = {
   name: "Anomalo Investigator Pro",
-  tagline: "See why your numbers moved — without writing a single query.",
+  tagline: "Your numbers changed. Find out why.",
   description:
-    "An AI agent swarm that autonomously investigates sales anomalies by running its own SQL queries on Exasol and explains the root cause in plain English.",
+    "An autonomous agent system that detects anomalies, investigates root causes by querying Exasol directly, and delivers evidence-backed explanations — no SQL required.",
 };
 
 // ─── Dashboard Metrics ───────────────────────────────────────────────────────
 export const dashboardMetrics = {
   revenue: {
-    label: "Total Revenue",
+    label: "Revenue",
     value: "$1,247,832",
     change: -30,
     trend: [82, 85, 78, 91, 88, 72, 51],
     isAnomaly: true,
-    anomalyText: "Anomaly detected: −30% this week",
+    anomalyText: "30% decline this week",
   },
   orders: {
-    label: "Total Orders",
+    label: "Orders",
     value: "14,291",
     change: -12,
     trend: [120, 118, 125, 115, 110, 105, 98],
     isAnomaly: false,
   },
-  topCategory: {
-    label: "Top Category",
-    value: "Electronics",
-    change: -45,
-    trend: [95, 92, 88, 78, 62, 48, 35],
-    isAnomaly: true,
-    anomalyText: "Category drop: −45%",
-  },
-  topRegion: {
-    label: "Top Region",
-    value: "South Asia",
-    change: 8,
-    trend: [45, 48, 52, 55, 58, 61, 64],
+  conversion: {
+    label: "Conversion",
+    value: "3.2%",
+    change: -0.4,
+    trend: [3.6, 3.5, 3.4, 3.5, 3.3, 3.2, 3.2],
     isAnomaly: false,
   },
+  anomalyScore: {
+    label: "Anomaly Score",
+    value: "94",
+    change: 94,
+    trend: [12, 8, 15, 11, 42, 78, 94],
+    isAnomaly: true,
+    anomalyText: "Critical threshold exceeded",
+  },
 };
+
+// ─── Revenue Chart Data (with anomaly zone) ──────────────────────────────────
+export const revenueChartData = [
+  { date: "Jul 28", revenue: 195000, baseline: 195000, anomaly: false },
+  { date: "Jul 29", revenue: 202000, baseline: 198000, anomaly: false },
+  { date: "Jul 30", revenue: 188000, baseline: 196000, anomaly: false },
+  { date: "Jul 31", revenue: 201000, baseline: 199000, anomaly: false },
+  { date: "Aug 1", revenue: 198000, baseline: 200000, anomaly: false },
+  { date: "Aug 2", revenue: 205000, baseline: 201000, anomaly: false },
+  { date: "Aug 3", revenue: 192000, baseline: 198000, anomaly: false },
+  { date: "Aug 4", revenue: 210000, baseline: 202000, anomaly: false },
+  { date: "Aug 5", revenue: 168000, baseline: 203000, anomaly: true },
+  { date: "Aug 6", revenue: 142000, baseline: 201000, anomaly: true },
+  { date: "Aug 7", revenue: 135000, baseline: 199000, anomaly: true },
+];
+
+// ─── Evidence Timeline ───────────────────────────────────────────────────────
+export const evidenceTimeline = [
+  { date: "Aug 3", event: "Revenue within normal range", type: "normal" as const },
+  { date: "Aug 5", event: "Price increase applied to 3 Electronics products", type: "cause" as const },
+  { date: "Aug 5", event: "Order volume drops 60% on affected products", type: "effect" as const },
+  { date: "Aug 6", event: "Electronics category revenue drops 45%", type: "effect" as const },
+  { date: "Aug 7", event: "Decline concentrated in South Asia region", type: "effect" as const },
+  { date: "Aug 7", event: "Root cause confirmed — price increase", type: "confirmed" as const },
+];
+
+// ─── Investigation Steps ─────────────────────────────────────────────────────
+export const investigationSteps = [
+  {
+    id: "watcher",
+    label: "Watcher",
+    purpose: "Scans metrics for anomalies",
+    input: "Revenue, Orders, Conversion — last 7 days",
+    output: "Anomaly flagged: Revenue −30%",
+    icon: "eye",
+    duration: 2500,
+  },
+  {
+    id: "investigator",
+    label: "Investigator",
+    purpose: "Generates and executes SQL queries",
+    input: "Anomaly context from Watcher",
+    output: "Category, Region, Product, Price dimensions isolated",
+    icon: "search",
+    duration: 3000,
+  },
+  {
+    id: "reasoner",
+    label: "Reasoner",
+    purpose: "Cross-references evidence across dimensions",
+    input: "Query results from Investigator",
+    output: "Hypothesis: Price increase caused volume drop",
+    icon: "brain",
+    duration: 2000,
+  },
+  {
+    id: "reporter",
+    label: "Reporter",
+    purpose: "Produces plain-English explanation",
+    input: "Hypothesis + supporting data from Reasoner",
+    output: "Root cause report with confidence score",
+    icon: "file-text",
+    duration: 2000,
+  },
+];
+
+// ─── Terminal Trace Logs ─────────────────────────────────────────────────────
+export const traceLogs = [
+  { agent: "Watcher", message: "Scanning revenue metrics for the past 7 days...", delay: 0 },
+  { agent: "Watcher", message: "Anomaly detected — Revenue dropped 30% week-over-week", delay: 800 },
+  { agent: "Watcher", message: "Decline exceeds 15% threshold — flagging for investigation", delay: 1600 },
+  { agent: "Watcher", message: "Handing off to Investigator Agent", delay: 2400 },
+  { agent: "Investigator", message: "Initializing text-to-SQL engine...", delay: 3200 },
+  { agent: "Investigator", message: "SELECT category, region, SUM(revenue) FROM sales WHERE date >= '2026-08-01' GROUP BY category, region", delay: 3800 },
+  { agent: "Investigator", message: "Executed on Exasol — 142ms — Electronics in South Asia: largest decline", delay: 4400 },
+  { agent: "Investigator", message: "SELECT product_id, price, quantity FROM orders WHERE category = 'Electronics' AND region = 'South Asia'", delay: 5000 },
+  { agent: "Investigator", message: "Executed on Exasol — 98ms — 3 premium products: 60% quantity drop after price increase", delay: 5600 },
+  { agent: "Investigator", message: "SELECT date, AVG(price), SUM(quantity) FROM orders WHERE category = 'Electronics' GROUP BY date", delay: 6200 },
+  { agent: "Investigator", message: "Executed on Exasol — 87ms — Price increase correlates with quantity decline starting Aug 5", delay: 6800 },
+  { agent: "Investigator", message: "Handing off to Reasoner Agent", delay: 7400 },
+  { agent: "Reasoner", message: "Cross-referencing price changes with volume across regions...", delay: 8000 },
+  { agent: "Reasoner", message: "Checking competitor activity — no significant changes detected", delay: 8600 },
+  { agent: "Reasoner", message: "Checking supply chain — no disruptions in South Asia", delay: 9200 },
+  { agent: "Reasoner", message: "Hypothesis: Price increase on Aug 5 caused 60% volume drop in Electronics", delay: 9800 },
+  { agent: "Reasoner", message: "Confidence: 94% — supported by 3 independent data slices", delay: 10400 },
+  { agent: "Reasoner", message: "Handing off to Reporter Agent", delay: 11000 },
+  { agent: "Reporter", message: "Generating plain-English summary...", delay: 11600 },
+  { agent: "Reporter", message: "Building visualization...", delay: 12200 },
+  { agent: "Reporter", message: "Investigation complete — report ready", delay: 12800 },
+];
+
+// ─── Evidence Discovered (during investigation) ──────────────────────────────
+export const evidenceDiscovered = [
+  { label: "Revenue", value: "↓ 30%", color: "amber" as const, moment: 3 },
+  { label: "Electronics", value: "↓ 45%", color: "amber" as const, moment: 5 },
+  { label: "South Asia", value: "↓ 38%", color: "amber" as const, moment: 7 },
+  { label: "Price", value: "↑ 15%", color: "blue" as const, moment: 9 },
+  { label: "Orders", value: "↓ 60%", color: "amber" as const, moment: 11 },
+  { label: "Correlation", value: "94%", color: "green" as const, moment: 16 },
+];
 
 // ─── Catalog Items ───────────────────────────────────────────────────────────
 export interface CatalogItem {
@@ -65,7 +165,7 @@ export const catalogItems: CatalogItem[] = [
     id: "inv-001",
     title: "Electronics Revenue Drop — South Asia",
     description:
-      "Revenue declined 30% in Electronics across South Asia after a price increase on three premium products. Investigation traced the root cause to a 15% price adjustment that triggered a 60% drop in order volume.",
+      "Revenue declined 30% in Electronics across South Asia after a price increase on three premium products.",
     status: "completed",
     date: "2026-08-07",
     confidence: 94,
@@ -79,11 +179,11 @@ export const catalogItems: CatalogItem[] = [
     id: "inv-002",
     title: "Clothing Category Spike — Europe",
     description:
-      "Clothing revenue surged 22% in Europe during the first week of August. Investigation linked the spike to a viral social media campaign driving traffic to the summer collection.",
+      "Clothing revenue surged 22% in Europe during the first week of August, linked to a viral social media campaign.",
     status: "completed",
     date: "2026-08-05",
     confidence: 89,
-    rootCause: "Viral social media campaign",
+    rootCause: "Viral social media campaign driving traffic",
     affectedMetric: "Revenue",
     impact: "+22%",
     tags: ["revenue", "marketing", "clothing", "europe"],
@@ -93,7 +193,7 @@ export const catalogItems: CatalogItem[] = [
     id: "inv-003",
     title: "Order Volume Decline — North America",
     description:
-      "Order volume dropped 18% in North America over the past week. Root cause analysis is underway to determine whether this is seasonal or driven by a specific event.",
+      "Order volume dropped 18% in North America over the past week. Root cause analysis underway.",
     status: "in-progress",
     date: "2026-08-08",
     confidence: 0,
@@ -107,7 +207,7 @@ export const catalogItems: CatalogItem[] = [
     id: "inv-004",
     title: "Home & Garden Flatline — Global",
     description:
-      "Home & Garden revenue has been flat for three consecutive weeks after steady growth. A scheduled deep-dive investigation is set for next Monday.",
+      "Home & Garden revenue flat for three consecutive weeks. Scheduled deep-dive investigation for next Monday.",
     status: "scheduled",
     date: "2026-08-11",
     confidence: 0,
@@ -121,11 +221,11 @@ export const catalogItems: CatalogItem[] = [
     id: "inv-005",
     title: "Refund Rate Increase — Electronics",
     description:
-      "Refund rates for Electronics jumped from 4% to 9% in the past two weeks. Investigation traced the issue to a batch of defective chargers shipped from the Shenzhen warehouse.",
+      "Refund rates for Electronics jumped from 4% to 9%. Traced to a defective charger batch from the Shenzhen warehouse.",
     status: "completed",
     date: "2026-08-03",
     confidence: 91,
-    rootCause: "Defective charger batch from Shenzhen warehouse",
+    rootCause: "Defective charger batch from Shenzhen",
     affectedMetric: "Refund Rate",
     impact: "+125%",
     tags: ["refunds", "electronics", "supply-chain"],
@@ -135,7 +235,7 @@ export const catalogItems: CatalogItem[] = [
     id: "inv-006",
     title: "Customer Acquisition Cost Spike — APAC",
     description:
-      "CAC rose 35% in APAC markets over the last month. Investigation is analyzing channel-level ad spend and conversion rates to isolate the driver.",
+      "CAC rose 35% in APAC markets. Investigation analyzing channel-level ad spend and conversion rates.",
     status: "in-progress",
     date: "2026-08-09",
     confidence: 0,
@@ -199,7 +299,7 @@ export const comments: Comment[] = [
     id: "c2",
     author: "Raj K.",
     avatar: "RK",
-    text: "I checked the competitor pricing — they're still at the old price point. This lines up with the report.",
+    text: "I checked competitor pricing — they're still at the old price point. This lines up with the report.",
     timestamp: "2026-08-07 11:18",
   },
   {
@@ -211,107 +311,71 @@ export const comments: Comment[] = [
   },
 ];
 
-// ─── Investigation Steps ─────────────────────────────────────────────────────
-export const investigationSteps = [
-  {
-    id: "watcher",
-    label: "Watcher Agent",
-    description: "Scanning metrics for anomalies",
-    icon: "eye",
-    duration: 2500,
-  },
-  {
-    id: "investigator",
-    label: "Investigator Agent",
-    description: "Generating and executing SQL queries",
-    icon: "search",
-    duration: 3000,
-  },
-  {
-    id: "reasoner",
-    label: "Reasoner Agent",
-    description: "Analyzing patterns and forming hypothesis",
-    icon: "brain",
-    duration: 2000,
-  },
-  {
-    id: "reporter",
-    label: "Reporter Agent",
-    description: "Generating plain-English report",
-    icon: "file-text",
-    duration: 2000,
-  },
-];
-
-// ─── Terminal Trace Logs ─────────────────────────────────────────────────────
-export const traceLogs = [
-  { agent: "Watcher", message: "Scanning revenue metrics for the past 7 days...", delay: 0 },
-  { agent: "Watcher", message: "⚠ Anomaly detected: Revenue dropped 30% week-over-week", delay: 800 },
-  { agent: "Watcher", message: "Flagging for investigation — decline exceeds 15% threshold", delay: 1600 },
-  { agent: "Watcher", message: "→ Handing off to Investigator Agent", delay: 2400 },
-  { agent: "Investigator", message: "Initializing text-to-SQL engine...", delay: 3200 },
-  { agent: "Investigator", message: "Generated query: SELECT category, region, SUM(revenue) FROM sales WHERE date >= '2026-08-01' GROUP BY category, region", delay: 3800 },
-  { agent: "Investigator", message: "Executing on Exasol... ✓ (142ms)", delay: 4400 },
-  { agent: "Investigator", message: "Result: Electronics in South Asia shows largest decline", delay: 5000 },
-  { agent: "Investigator", message: "Generated query: SELECT product_id, price, quantity FROM orders WHERE category = 'Electronics' AND region = 'South Asia'", delay: 5600 },
-  { agent: "Investigator", message: "Executing on Exasol... ✓ (98ms)", delay: 6200 },
-  { agent: "Investigator", message: "Result: 3 premium products saw 60% quantity drop after price increase", delay: 6800 },
-  { agent: "Investigator", message: "Generated query: SELECT date, AVG(price), SUM(quantity) FROM orders WHERE category = 'Electronics' GROUP BY date", delay: 7400 },
-  { agent: "Investigator", message: "Executing on Exasol... ✓ (87ms)", delay: 8000 },
-  { agent: "Investigator", message: "Result: Price increase correlates directly with quantity decline starting Aug 5", delay: 8600 },
-  { agent: "Investigator", message: "→ Handing off to Reasoner Agent", delay: 9200 },
-  { agent: "Reasoner", message: "Analyzing correlation between price changes and volume across regions...", delay: 9800 },
-  { agent: "Reasoner", message: "Cross-referencing with competitor pricing data...", delay: 10400 },
-  { agent: "Reasoner", message: "Hypothesis formed: Price increase on Aug 5 caused 60% volume drop in Electronics", delay: 11000 },
-  { agent: "Reasoner", message: "Confidence: 94% — backed by 3 independent data slices", delay: 11600 },
-  { agent: "Reasoner", message: "→ Handing off to Reporter Agent", delay: 12200 },
-  { agent: "Reporter", message: "Generating plain-English summary...", delay: 12800 },
-  { agent: "Reporter", message: "Building visualization...", delay: 13400 },
-  { agent: "Reporter", message: "✓ Investigation complete — report ready", delay: 14000 },
-];
-
 // ─── Report Data ─────────────────────────────────────────────────────────────
 export const reportData = {
   headline: "Revenue dropped 30% due to a price increase on Electronics in South Asia",
-  summary: `On August 5, 2026, three premium Electronics products in the South Asia region received a 15% price increase. This immediately triggered a 60% decline in order volume for those products, which compounded into a 30% revenue drop for the week.
+  summary:
+    "On August 5, 2026, three premium Electronics products in the South Asia region received a 15% price increase. This immediately triggered a 60% decline in order volume for those products, which compounded into a 30% revenue drop for the week.",
 
-The decline is concentrated in the $500–$800 price tier, where customers are highly price-sensitive. Lower-priced Electronics (under $200) were unaffected, suggesting the price increase exceeded the market's willingness to pay for premium items.
+  rootCause: "Price increase on premium Electronics products",
+  confidence: 94,
 
-No external factors — competitor actions, regional events, or supply issues — correlate with the timing. The price change is the sole significant variable.`,
-  keyFindings: [
-    { metric: "Revenue Impact", value: "−30%", detail: "Week-over-week decline" },
-    { metric: "Volume Drop", value: "−60%", detail: "Premium Electronics orders" },
-    { metric: "Price Change", value: "+15%", detail: "Applied Aug 5, 2026" },
-    { metric: "Affected Region", value: "South Asia", detail: "Primary impact zone" },
+  evidenceChain: [
+    { step: "Price +15%", detail: "Applied Aug 5 on 3 products" },
+    { step: "Orders −60%", detail: "Volume collapse on affected SKUs" },
+    { step: "Revenue −30%", detail: "Category-level impact" },
   ],
-  evidence: [
+
+  whyWeBelieve: [
+    { evidence: "Price increased 15% on Aug 5", strength: "strong" as const },
+    { evidence: "Premium Electronics orders decreased 60% immediately after", strength: "strong" as const },
+    { evidence: "Decline concentrated in South Asia only", strength: "strong" as const },
+    { evidence: "Competitor activity unchanged during this period", strength: "corroborating" as const },
+    { evidence: "Supply chain remained stable — no disruptions", strength: "corroborating" as const },
+  ],
+
+  alternatives: [
+    { explanation: "Competitor activity", likelihood: "unlikely" as const, reason: "No pricing changes from competitors during this period" },
+    { explanation: "Supply chain disruption", likelihood: "unlikely" as const, reason: "Inventory levels stable, no warehouse issues reported" },
+    { explanation: "Regional event or holiday", likelihood: "unlikely" as const, reason: "No holidays or events in South Asia during Aug 5-7" },
+    { explanation: "Seasonal demand shift", likelihood: "unlikely" as const, reason: "Other categories in same region unaffected" },
+    { explanation: "Pricing change", likelihood: "confirmed" as const, reason: "Strongest temporal and magnitude correlation with decline" },
+  ],
+
+  keyFindings: [
+    { metric: "Revenue Impact", value: "−30%", detail: "Week-over-week" },
+    { metric: "Volume Drop", value: "−60%", detail: "Premium Electronics" },
+    { metric: "Price Change", value: "+15%", detail: "Applied Aug 5" },
+    { metric: "Region", value: "South Asia", detail: "Primary impact" },
+  ],
+
+  supportingEvidence: [
     {
       title: "Region Analysis",
-      content: "South Asia: −45% revenue decline. Other regions stable.",
+      content: "South Asia: −45% revenue decline. All other regions stable.",
       metric: "−45%",
     },
     {
       title: "Category Breakdown",
-      content: "Electronics: −45% vs. Clothing +2%, Home +5%",
+      content: "Electronics: −45% vs. Clothing +2%, Home & Garden +5%",
       metric: "−45%",
     },
     {
       title: "Price Correlation",
       content: "Products with price increase showed 60% volume drop",
-      metric: "94% conf",
+      metric: "94%",
     },
     {
       title: "Timeline Match",
       content: "Decline started exactly on Aug 5 — price change date",
-      metric: "Match",
+      metric: "Exact",
     },
   ],
 };
 
-// ─── Chart Placeholder ───────────────────────────────────────────────────────
-export const chartPlaceholder = {
-  title: "Revenue vs. Price Over Time",
-  data: [
+// ─── Chart Data ──────────────────────────────────────────────────────────────
+export const chartData = {
+  revenueVsPrice: [
     { date: "Aug 1", revenue: 45000, price: 520 },
     { date: "Aug 2", revenue: 47000, price: 520 },
     { date: "Aug 3", revenue: 44000, price: 520 },

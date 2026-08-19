@@ -1,8 +1,8 @@
 "use client";
 import { useParams, useNavigate } from "react-router";
 import { motion } from "framer-motion";
-import { GridBackground } from "@/components/custom/GridBackground";
-import { investigationDetail, comments, reportData, catalogItems } from "@/data/mockData";
+import { NavBar } from "@/components/NavBar";
+import { investigationDetail, comments, catalogItems } from "@/data/mockData";
 import {
   ArrowLeft,
   Clock,
@@ -13,14 +13,20 @@ import {
   Share2,
   Download,
   Play,
-  TrendingDown,
 } from "lucide-react";
 
 const agentColors: Record<string, string> = {
-  Watcher: "text-amber-400 bg-amber-500/15",
-  Investigator: "text-cyan-400 bg-cyan-500/15",
-  Reasoner: "text-violet-400 bg-violet-500/15",
-  Reporter: "text-emerald-400 bg-emerald-500/15",
+  Watcher: "text-amber-400",
+  Investigator: "text-blue-400",
+  Reasoner: "text-purple-400",
+  Reporter: "text-emerald-400",
+};
+
+const agentDotColors: Record<string, string> = {
+  Watcher: "bg-amber-500",
+  Investigator: "bg-blue-400",
+  Reasoner: "bg-purple-400",
+  Reporter: "bg-emerald-500",
 };
 
 export default function InvestigationDetail() {
@@ -29,343 +35,272 @@ export default function InvestigationDetail() {
 
   const item = catalogItems.find((c) => c.id === id);
   const detail = investigationDetail;
-  const detailComments = comments;
 
   if (!item) {
     return (
-      <GridBackground>
-        <div className="min-h-screen flex items-center justify-center px-6">
+      <div className="min-h-screen bg-[#0a0a0c]">
+        <NavBar />
+        <div className="flex items-center justify-center px-6 py-20">
           <div className="text-center">
-            <p className="text-sm text-white/40 mb-3">Investigation not found.</p>
+            <p className="text-[13px] text-white/35 mb-3">Investigation not found.</p>
             <button
               onClick={() => navigate("/browse")}
-              className="text-xs text-violet-400 hover:text-violet-300 transition-colors"
+              className="text-[11px] text-amber-400/60 hover:text-amber-400/80 transition-colors"
             >
               ← Back to catalog
             </button>
           </div>
         </div>
-      </GridBackground>
+      </div>
     );
   }
 
   const isCompleted = item.status === "completed";
 
   return (
-    <GridBackground>
-      <div className="min-h-screen px-6 py-10">
-        <div className="mx-auto max-w-5xl">
+    <div className="min-h-screen bg-[#0a0a0c]">
+      <NavBar />
+
+      <div className="px-6 py-6">
+        <div className="mx-auto max-w-[900px]">
           {/* Header */}
           <motion.header
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+            className="mb-6"
           >
             <button
               onClick={() => navigate("/browse")}
-              className="flex items-center gap-2 text-xs text-white/30 hover:text-white/50 transition-colors mb-4"
+              className="flex items-center gap-1.5 text-[11px] text-white/25 hover:text-white/45 transition-colors mb-3"
             >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to catalog
+              <ArrowLeft className="h-3 w-3" />
+              Catalog
             </button>
 
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   {isCompleted ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-1 text-[10px] font-medium text-emerald-400">
+                    <span className="flex items-center gap-1 font-mono text-[9px] text-emerald-400/70 bg-emerald-500/8 px-1.5 py-0.5">
                       <CheckCircle2 className="h-3 w-3" />
-                      Completed
+                      COMPLETED
                     </span>
                   ) : item.status === "in-progress" ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-1 text-[10px] font-medium text-amber-400">
+                    <span className="flex items-center gap-1 font-mono text-[9px] text-amber-400/70 bg-amber-500/8 px-1.5 py-0.5">
                       <Play className="h-3 w-3" />
-                      In Progress
+                      IN PROGRESS
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/15 px-2.5 py-1 text-[10px] font-medium text-blue-400">
+                    <span className="flex items-center gap-1 font-mono text-[9px] text-blue-400/70 bg-blue-400/8 px-1.5 py-0.5">
                       <Clock className="h-3 w-3" />
-                      Scheduled
+                      SCHEDULED
                     </span>
                   )}
-                  <span className="text-[10px] text-white/20">#{item.id}</span>
+                  <span className="font-mono text-[9px] text-white/15">{item.id}</span>
                 </div>
-                <h1 className="text-2xl font-bold tracking-tight text-white">
+                <h1 className="text-lg font-semibold text-white/80 tracking-tight">
                   {item.title}
                 </h1>
-                <p className="mt-1 text-sm text-white/40">
+                <p className="mt-1 text-[12px] text-white/35">
                   {item.description}
                 </p>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <button className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/50 transition-colors hover:bg-white/10 hover:text-white">
-                  <Share2 className="h-3.5 w-3.5" />
-                  Share
+                <button className="flex items-center gap-1.5 border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-[11px] text-white/35 transition-colors hover:bg-white/[0.06]">
+                  <Share2 className="h-3 w-3" />
                 </button>
-                <button className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/50 transition-colors hover:bg-white/10 hover:text-white">
-                  <Download className="h-3.5 w-3.5" />
-                  Export
+                <button className="flex items-center gap-1.5 border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-[11px] text-white/35 transition-colors hover:bg-white/[0.06]">
+                  <Download className="h-3 w-3" />
                 </button>
               </div>
             </div>
           </motion.header>
 
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {/* Main content */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Key metrics row */}
-              {isCompleted && (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="grid grid-cols-2 gap-3 sm:grid-cols-4"
-                >
-                  {reportData.keyFindings.map((f) => (
-                    <div
-                      key={f.metric}
-                      className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3"
-                    >
-                      <p className="text-[10px] text-white/30 uppercase tracking-wider mb-1">
-                        {f.metric}
-                      </p>
-                      <p className="font-mono text-lg font-bold text-white">
-                        {f.value}
-                      </p>
-                      <p className="text-[10px] text-white/25">{f.detail}</p>
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-
-              {/* Headline finding */}
-              {isCompleted && (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15 }}
-                  className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5"
-                >
-                  <h3 className="text-xs font-medium text-white/30 uppercase tracking-wider mb-3">
-                    Root Cause
-                  </h3>
-                  <p className="text-base font-semibold text-white mb-2">
-                    {reportData.headline}
-                  </p>
-                  <div className="space-y-2 text-sm text-white/50 leading-relaxed">
-                    {reportData.summary.split("\n\n").map((para, i) => (
-                      <p key={i}>{para}</p>
-                    ))}
+          {/* Stats strip */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="grid grid-cols-4 gap-px bg-white/[0.04] border border-white/[0.06] mb-5"
+          >
+            {[
+              { label: "Duration", value: detail.duration, icon: Clock },
+              { label: "Queries", value: `${detail.queriesRun}`, icon: Database },
+              { label: "Confidence", value: isCompleted ? `${detail.confidence}%` : "—", icon: Zap },
+              { label: "Avg Latency", value: detail.avgLatency, icon: Activity },
+            ].map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <div key={stat.label} className="bg-[#0c0c10] p-3">
+                  <div className="flex items-center gap-1 mb-1">
+                    <Icon className="h-3 w-3 text-white/20" />
+                    <span className="font-mono text-[9px] text-white/20 uppercase tracking-wider">{stat.label}</span>
                   </div>
-                </motion.div>
-              )}
-
-              {/* Chart placeholder */}
-              {isCompleted && (
-                <motion.div
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5"
-                >
-                  <h3 className="text-xs font-medium text-white/30 uppercase tracking-wider mb-3">
-                    Revenue vs. Price Over Time
-                  </h3>
-                  <div className="flex items-end gap-3 h-32">
-                    {[
-                      { d: "Aug 1", r: 45, post: false },
-                      { d: "Aug 2", r: 47, post: false },
-                      { d: "Aug 3", r: 44, post: false },
-                      { d: "Aug 4", r: 46, post: false },
-                      { d: "Aug 5", r: 38, post: true },
-                      { d: "Aug 6", r: 28, post: true },
-                      { d: "Aug 7", r: 25, post: true },
-                    ].map((d) => (
-                      <div key={d.d} className="flex flex-1 flex-col items-center gap-1.5">
-                        <span className="font-mono text-[9px] text-white/25">{d.r}k</span>
-                        <div
-                          className={`w-full rounded-t ${d.post ? "bg-red-500/50" : "bg-violet-500/50"}`}
-                          style={{ height: `${(d.r / 50) * 100}%` }}
-                        />
-                        <span className="font-mono text-[9px] text-white/20">
-                          {d.d.replace("Aug ", "")}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Comments */}
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xs font-medium text-white/30 uppercase tracking-wider flex items-center gap-2">
-                    <MessageSquare className="h-3.5 w-3.5" />
-                    Comments ({detailComments.length})
-                  </h3>
+                  <p className="font-mono text-[13px] font-semibold text-white/55">{stat.value}</p>
                 </div>
+              );
+            })}
+          </motion.div>
 
-                <div className="space-y-3">
-                  {detailComments.map((c) => (
-                    <div
-                      key={c.id}
-                      className="flex gap-3 rounded-xl bg-white/[0.02] p-3"
+          {/* Two-column: Timeline + Metadata */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_280px] mb-5">
+            {/* Timeline */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="border border-white/[0.06] bg-[#0c0c10] p-4"
+            >
+              <span className="font-mono text-[10px] text-white/25 uppercase tracking-wider block mb-3">
+                Investigation Timeline
+              </span>
+              <div className="relative">
+                <div className="absolute left-[3px] top-0 bottom-0 w-px bg-white/[0.06]" />
+                <div className="space-y-0">
+                  {detail.timeline.map((item, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 + i * 0.03 }}
+                      className="relative flex items-start gap-3 py-1.5"
                     >
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-500/15 text-[10px] font-bold text-violet-300">
-                        {c.avatar}
-                      </div>
+                      <div className={`relative z-10 mt-1.5 h-[5px] w-[5px] shrink-0 rounded-full ${agentDotColors[item.agent] || "bg-white/20"}`} />
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-medium text-white/70">
-                            {c.author}
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className={`font-mono text-[9px] ${agentColors[item.agent] || "text-white/30"} uppercase tracking-wider`}>
+                            {item.agent}
                           </span>
-                          <span className="text-[10px] text-white/20">
-                            {c.timestamp}
-                          </span>
+                          <span className="font-mono text-[9px] text-white/10">{item.time}</span>
                         </div>
-                        <p className="text-xs text-white/45 leading-relaxed">
-                          {c.text}
-                        </p>
+                        <p className="text-[11px] text-white/40 leading-relaxed">{item.event}</p>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
+              </div>
+            </motion.div>
 
-                {/* Comment input */}
-                <div className="mt-4 flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Add a comment..."
-                    className="flex-1 rounded-lg border border-white/[0.06] bg-white/[0.03] px-3 py-2 text-xs text-white placeholder-white/20 outline-none focus:border-violet-500/30"
-                  />
-                  <button className="rounded-lg bg-violet-500/20 px-3 py-2 text-xs font-medium text-violet-300 transition-colors hover:bg-violet-500/30">
-                    Post
-                  </button>
+            {/* Metadata sidebar */}
+            <motion.div
+              initial={{ opacity: 0, x: 8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="space-y-4"
+            >
+              {/* Confidence */}
+              {isCompleted && (
+                <div className="border border-white/[0.06] bg-[#0c0c10] p-4">
+                  <span className="font-mono text-[9px] text-white/20 uppercase tracking-wider block mb-2">
+                    Root Cause Confidence
+                  </span>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="font-mono text-2xl font-bold text-amber-400">{detail.confidence}%</span>
+                  </div>
+                  <div className="h-1 bg-white/[0.04] overflow-hidden mb-2">
+                    <div
+                      className="h-full bg-amber-500/50"
+                      style={{ width: `${detail.confidence}%` }}
+                    />
+                  </div>
+                  <p className="text-[11px] text-white/35 leading-relaxed">
+                    {item.rootCause}
+                  </p>
                 </div>
-              </motion.div>
-            </div>
+              )}
 
-            {/* Sidebar */}
-            <div className="space-y-4">
-              {/* Agent timeline */}
-              <motion.div
-                initial={{ opacity: 0, x: 15 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.15 }}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5"
-              >
-                <h3 className="text-xs font-medium text-white/30 uppercase tracking-wider mb-4">
-                  Investigation Timeline
-                </h3>
-                <div className="space-y-2.5">
-                  {detail.timeline.map((entry, i) => (
-                    <div key={i} className="flex gap-2.5 text-[11px]">
-                      <span className="shrink-0 font-mono text-white/20 w-14">
-                        {entry.time.slice(0, 5)}
-                      </span>
-                      <span
-                        className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-medium ${
-                          agentColors[entry.agent] || "text-white/30 bg-white/5"
-                        }`}
-                      >
-                        {entry.agent}
-                      </span>
-                      <span className="text-white/40 leading-relaxed">
-                        {entry.event}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Metadata */}
-              <motion.div
-                initial={{ opacity: 0, x: 15 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5"
-              >
-                <h3 className="text-xs font-medium text-white/30 uppercase tracking-wider mb-3">
+              {/* Details */}
+              <div className="border border-white/[0.06] bg-[#0c0c10] p-4">
+                <span className="font-mono text-[9px] text-white/20 uppercase tracking-wider block mb-2">
                   Details
-                </h3>
-                <div className="space-y-2.5 text-[11px]">
+                </span>
+                <div className="space-y-2">
                   {[
-                    { label: "Status", value: item.status },
-                    { label: "Date", value: item.date },
+                    { label: "Backend", value: detail.backend },
+                    { label: "Dimensions", value: `${detail.dimensions} analyzed` },
                     { label: "Author", value: item.author },
-                    { label: "Impact", value: item.impact },
-                    { label: "Metric", value: item.affectedMetric },
-                    { label: "Root Cause", value: item.rootCause },
-                    ...(isCompleted
-                      ? [
-                          { label: "Confidence", value: `${item.confidence}%` },
-                          { label: "Queries Run", value: String(detail.queriesRun) },
-                          { label: "Avg Latency", value: detail.avgLatency },
-                          { label: "Backend", value: detail.backend },
-                        ]
-                      : []),
-                  ].map((row) => (
-                    <div key={row.label} className="flex items-center justify-between">
-                      <span className="text-white/30">{row.label}</span>
-                      <span className="font-mono text-white/60">{row.value}</span>
+                    { label: "Date", value: item.date },
+                  ].map((d) => (
+                    <div key={d.label} className="flex items-center justify-between py-1 border-b border-white/[0.03] last:border-0">
+                      <span className="text-[10px] text-white/25">{d.label}</span>
+                      <span className="font-mono text-[10px] text-white/40">{d.value}</span>
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
 
               {/* Tags */}
-              <motion.div
-                initial={{ opacity: 0, x: 15 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.25 }}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5"
-              >
-                <h3 className="text-xs font-medium text-white/30 uppercase tracking-wider mb-3">
+              <div className="border border-white/[0.06] bg-[#0c0c10] p-4">
+                <span className="font-mono text-[9px] text-white/20 uppercase tracking-wider block mb-2">
                   Tags
-                </h3>
+                </span>
                 <div className="flex flex-wrap gap-1.5">
                   {item.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-md bg-white/[0.04] px-2 py-1 text-[10px] text-white/25"
+                      className="bg-white/[0.04] px-1.5 py-0.5 font-mono text-[9px] text-white/20"
                     >
                       {tag}
                     </span>
                   ))}
                 </div>
-              </motion.div>
+              </div>
+            </motion.div>
+          </div>
 
-              {/* Run new investigation CTA */}
-              <motion.div
-                initial={{ opacity: 0, x: 15 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <button
-                  onClick={() => navigate("/investigate")}
-                  className="w-full rounded-xl border border-violet-500/20 bg-violet-500/10 p-4 text-left transition-colors hover:bg-violet-500/15"
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <Zap className="h-3.5 w-3.5 text-violet-400" />
-                    <span className="text-xs font-medium text-violet-300">
-                      Run New Investigation
-                    </span>
+          {/* Discussion */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="border border-white/[0.06] bg-[#0c0c10] p-4 mb-5"
+          >
+            <span className="font-mono text-[10px] text-white/25 uppercase tracking-wider flex items-center gap-2 mb-3">
+              <MessageSquare className="h-3 w-3" />
+              Discussion ({comments.length})
+            </span>
+            <div className="space-y-3">
+              {comments.map((c) => (
+                <div key={c.id} className="flex gap-3 py-2 border-b border-white/[0.03] last:border-0">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center bg-white/[0.06] text-[9px] font-mono font-bold text-white/30">
+                    {c.avatar}
                   </div>
-                  <p className="text-[10px] text-violet-300/40">
-                    Deploy the agent swarm on a fresh anomaly
-                  </p>
-                </button>
-              </motion.div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[11px] font-medium text-white/50">{c.author}</span>
+                      <span className="font-mono text-[9px] text-white/15">{c.timestamp}</span>
+                    </div>
+                    <p className="text-[11px] text-white/35 leading-relaxed">{c.text}</p>
+                  </div>
+                </div>
+              ))}
             </div>
+          </motion.div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-between py-4">
+            <button
+              onClick={() => navigate("/browse")}
+              className="flex items-center gap-1.5 text-[11px] text-white/25 transition-colors hover:text-white/45"
+            >
+              <ArrowLeft className="h-3 w-3" />
+              Back to Catalog
+            </button>
+            {isCompleted && (
+              <button
+                onClick={() => navigate("/report")}
+                className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 text-[11px] font-medium text-amber-400/70 transition-colors hover:bg-amber-500/20"
+              >
+                View Report →
+              </button>
+            )}
           </div>
         </div>
       </div>
-    </GridBackground>
+    </div>
   );
 }
+
+// Unused import to avoid build error — Activity is used in stats strip
+import { Activity } from "lucide-react";

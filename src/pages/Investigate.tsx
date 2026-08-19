@@ -1,26 +1,22 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router";
-import { GridBackground } from "@/components/custom/GridBackground";
+import { NavBar } from "@/components/NavBar";
 import { StepLoader } from "@/components/custom/StepLoader";
-import { TerminalTrace } from "@/components/custom/TerminalTrace";
-import { investigationSteps, traceLogs } from "@/data/mockData";
 import {
-  ArrowLeft,
-  Zap,
-  Search,
-  Plus,
-  Shield,
-  LayoutDashboard,
-} from "lucide-react";
-import logo from "@/assets/logo.svg";
+  investigationSteps,
+  traceLogs,
+  evidenceDiscovered,
+} from "@/data/mockData";
+import { ArrowLeft, ArrowRight, Clock, Database, Zap } from "lucide-react";
 
 export default function Investigate() {
   const navigate = useNavigate();
   const [activeStepIndex, setActiveStepIndex] = useState(-1);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [visibleLogs, setVisibleLogs] = useState(0);
+  const [visibleEvidence, setVisibleEvidence] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
 
   const runInvestigation = useCallback(async () => {
@@ -35,14 +31,29 @@ export default function Investigate() {
     setIsComplete(true);
   }, []);
 
+  // Stream trace logs
   useEffect(() => {
     if (visibleLogs >= traceLogs.length) return;
     const log = traceLogs[visibleLogs];
+    const prevDelay = visibleLogs > 0 ? traceLogs[visibleLogs - 1].delay : 0;
+    const interval = log.delay === 0 ? 300 : log.delay - prevDelay || 600;
     const timer = setTimeout(() => {
       setVisibleLogs((prev) => prev + 1);
-    }, log.delay === 0 ? 300 : traceLogs[visibleLogs]?.delay - (traceLogs[visibleLogs - 1]?.delay || 0) || 600);
+    }, interval);
     return () => clearTimeout(timer);
   }, [visibleLogs]);
+
+  // Stream evidence items
+  useEffect(() => {
+    if (visibleEvidence >= evidenceDiscovered.length) return;
+    const item = evidenceDiscovered[visibleEvidence];
+    // Map evidence moment to approximate delay
+    const delay = item.moment * 500;
+    const timer = setTimeout(() => {
+      setVisibleEvidence((prev) => prev + 1);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [visibleEvidence]);
 
   useEffect(() => {
     const timer = setTimeout(() => runInvestigation(), 500);
@@ -50,154 +61,237 @@ export default function Investigate() {
   }, [runInvestigation]);
 
   return (
-    <GridBackground>
-      <div className="min-h-screen px-6 py-10">
-        <div className="mx-auto max-w-6xl">
-          {/* Nav Bar */}
-          <motion.nav
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8 flex items-center justify-between"
-          >
-            <div className="flex items-center gap-2.5">
-              <img src={logo} alt="Anomalo Investigator Pro" className="h-6 w-6" />
-              <span className="font-mono text-sm text-white/50 tracking-wider">
-                Anomalo Investigator Pro
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              {[
-                { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-                { label: "Browse", icon: Search, path: "/browse" },
-                { label: "New", icon: Plus, path: "/create" },
-                { label: "Admin", icon: Shield, path: "/admin" },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => navigate(item.path)}
-                    className={
-                      item.path === "/investigate"
-                        ? "flex items-center gap-1.5 rounded-lg bg-white/[0.08] px-3 py-1.5 text-xs font-medium text-white/70 transition-colors"
-                        : "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-white/30 transition-colors hover:bg-white/[0.05] hover:text-white/50"
-                    }
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    {item.label}
-                  </button>
-                );
-              })}
-            </div>
-          </motion.nav>
+    <div className="min-h-screen bg-[#0a0a0c]">
+      <NavBar />
 
+      <div className="px-6 py-5">
+        <div className="mx-auto max-w-[1400px]">
           {/* Header */}
           <motion.header
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8 flex items-center gap-4"
+            className="mb-5 flex items-center justify-between"
           >
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/50 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-            <div>
-              <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-violet-400" />
-                <span className="font-mono text-xs text-violet-400/70 tracking-wider uppercase">
-                  Live Investigation
-                </span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="flex h-7 w-7 items-center justify-center border border-white/[0.08] text-white/30 transition-colors hover:bg-white/[0.05] hover:text-white/50"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+              </button>
+              <div>
+                <div className="flex items-center gap-2">
+                  <div className={`h-1.5 w-1.5 rounded-full ${isComplete ? "bg-emerald-500" : "bg-amber-500 animate-pulse"}`} />
+                  <span className="font-mono text-[10px] text-white/30 uppercase tracking-wider">
+                    {isComplete ? "Investigation Complete" : "Live Investigation"}
+                  </span>
+                </div>
+                <h1 className="text-lg font-semibold text-white/80 tracking-tight">
+                  Electronics Revenue Drop — South Asia
+                </h1>
               </div>
-              <h1 className="text-2xl font-bold tracking-tight text-white">
-                Analyzing Revenue Anomaly
-              </h1>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1.5 text-[10px] text-white/25 font-mono">
+                <Clock className="h-3 w-3" />
+                <span>{isComplete ? "1 min 42 sec" : "Running..."}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-white/25 font-mono">
+                <Database className="h-3 w-3" />
+                <span>Exasol</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-white/25 font-mono">
+                <Zap className="h-3 w-3" />
+                <span>3 queries</span>
+              </div>
             </div>
           </motion.header>
 
-          {/* Main content: two columns */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
-            {/* Left: Step progress */}
+          {/* ── 3-Panel Layout ──────────────────────────────────────── */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[220px_1fr_260px]">
+            {/* LEFT: Agent Pipeline */}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-              className="lg:col-span-2"
+              transition={{ delay: 0.1 }}
+              className="border border-white/[0.06] bg-[#0c0c10] p-4"
             >
-              <div className="mb-4 text-xs font-medium text-white/30 uppercase tracking-wider">
-                Agent Progress
-              </div>
+              <span className="font-mono text-[10px] text-white/25 uppercase tracking-wider block mb-3">
+                Agent Pipeline
+              </span>
               <StepLoader
                 steps={investigationSteps}
                 activeIndex={activeStepIndex}
                 completedIndices={completedSteps}
               />
 
-              {isComplete && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-center"
-                >
-                  <p className="text-sm font-medium text-emerald-400">
-                    ✓ Investigation Complete
-                  </p>
-                  <p className="mt-1 text-xs text-emerald-300/50">
-                    Root cause identified with 94% confidence
-                  </p>
-                  <button
-                    onClick={() => navigate("/report")}
-                    className="mt-3 rounded-lg bg-emerald-500/20 px-4 py-2 text-xs font-medium text-emerald-300 transition-colors hover:bg-emerald-500/30"
-                  >
-                    View Report →
-                  </button>
-                </motion.div>
-              )}
-
-              <div className="mt-6 rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                <div className="text-[10px] font-medium text-white/30 uppercase tracking-wider mb-3">
-                  Query Performance
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <p className="font-mono text-lg font-bold text-white">3</p>
-                    <p className="text-[10px] text-white/30">Queries Run</p>
-                  </div>
-                  <div>
-                    <p className="font-mono text-lg font-bold text-white">327ms</p>
-                    <p className="text-[10px] text-white/30">Avg Latency</p>
-                  </div>
-                  <div>
-                    <p className="font-mono text-lg font-bold text-white">4</p>
-                    <p className="text-[10px] text-white/30">Dimensions</p>
-                  </div>
-                  <div>
-                    <p className="font-mono text-lg font-bold text-emerald-400">
-                      Exasol
-                    </p>
-                    <p className="text-[10px] text-white/30">Backend</p>
-                  </div>
+              {/* Performance stats */}
+              <div className="mt-4 border-t border-white/[0.04] pt-3">
+                <span className="font-mono text-[9px] text-white/20 uppercase tracking-wider block mb-2">
+                  Performance
+                </span>
+                <div className="space-y-1.5">
+                  {[
+                    { label: "Queries Run", value: completedSteps.length >= 2 ? "3" : "—" },
+                    { label: "Avg Latency", value: completedSteps.length >= 2 ? "327ms" : "—" },
+                    { label: "Dimensions", value: completedSteps.length >= 2 ? "4" : "—" },
+                  ].map((stat) => (
+                    <div key={stat.label} className="flex items-center justify-between">
+                      <span className="text-[10px] text-white/25">{stat.label}</span>
+                      <span className="font-mono text-[10px] text-white/40">{stat.value}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </motion.div>
 
-            {/* Right: Terminal trace */}
+            {/* CENTER: Investigation Timeline (trace) */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="border border-white/[0.06] bg-[#0c0c10]"
+            >
+              {/* Trace header */}
+              <div className="flex items-center gap-2 border-b border-white/[0.04] px-4 py-2.5">
+                <div className="flex gap-1">
+                  <div className="h-2 w-2 rounded-full bg-white/10" />
+                  <div className="h-2 w-2 rounded-full bg-white/10" />
+                  <div className="h-2 w-2 rounded-full bg-white/10" />
+                </div>
+                <span className="ml-1 font-mono text-[10px] text-white/25">
+                  agent-trace.log
+                </span>
+                <span className="ml-auto font-mono text-[9px] text-white/15">
+                  {visibleLogs}/{traceLogs.length} lines
+                </span>
+              </div>
+
+              {/* Log output */}
+              <div className="h-[420px] overflow-y-auto p-4 font-mono text-[12px] leading-relaxed">
+                <AnimatePresence mode="popLayout">
+                  {traceLogs.slice(0, visibleLogs).map((log, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="flex gap-3 py-0.5"
+                    >
+                      <span className="shrink-0 text-white/15 w-5 text-right">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span
+                        className={`shrink-0 w-24 ${
+                          log.agent === "Watcher"
+                            ? "text-amber-400/60"
+                            : log.agent === "Investigator"
+                              ? "text-blue-400/60"
+                              : log.agent === "Reasoner"
+                                ? "text-purple-400/60"
+                                : "text-emerald-400/60"
+                        }`}
+                      >
+                        {log.agent}
+                      </span>
+                      <span className="text-white/45">{log.message}</span>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {/* Cursor */}
+                {visibleLogs < traceLogs.length && (
+                  <div className="flex gap-3 py-0.5">
+                    <span className="shrink-0 text-white/15 w-5 text-right">
+                      {String(visibleLogs + 1).padStart(2, "0")}
+                    </span>
+                    <motion.span
+                      animate={{ opacity: [1, 0, 1] }}
+                      transition={{ repeat: Infinity, duration: 0.8 }}
+                      className="h-3.5 w-1.5 bg-amber-500/60"
+                    />
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            {/* RIGHT: Evidence Discovered */}
+            <motion.div
+              initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
-              className="lg:col-span-3"
+              className="border border-white/[0.06] bg-[#0c0c10] p-4"
             >
-              <div className="mb-4 text-xs font-medium text-white/30 uppercase tracking-wider">
-                Agent Trace
+              <span className="font-mono text-[10px] text-white/25 uppercase tracking-wider block mb-3">
+                Evidence Discovered
+              </span>
+
+              <div className="space-y-2">
+                <AnimatePresence>
+                  {evidenceDiscovered.slice(0, visibleEvidence).map((item, i) => (
+                    <motion.div
+                      key={item.label}
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
+                      className="flex items-center justify-between border border-white/[0.04] bg-white/[0.02] p-3"
+                    >
+                      <span className="text-[11px] text-white/40">{item.label}</span>
+                      <span
+                        className={`font-mono text-sm font-semibold ${
+                          item.color === "amber"
+                            ? "text-amber-400"
+                            : item.color === "green"
+                              ? "text-emerald-400"
+                              : "text-blue-400"
+                        }`}
+                      >
+                        {item.value}
+                      </span>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+
+                {visibleEvidence === 0 && (
+                  <div className="py-8 text-center">
+                    <p className="text-[11px] text-white/20">Waiting for evidence...</p>
+                  </div>
+                )}
               </div>
-              <TerminalTrace logs={traceLogs} visibleCount={visibleLogs} />
+
+              {/* Root cause (shown at end) */}
+              {isComplete && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 border-t border-emerald-500/15 pt-3"
+                >
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span className="font-mono text-[9px] text-emerald-400/70 uppercase tracking-wider">
+                      Root Cause Confirmed
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-white/50 leading-relaxed mb-2">
+                    Revenue decline traced to a 15% price increase in Electronics across South Asia.
+                  </p>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="font-mono text-[10px] text-emerald-400/70">94% confidence</span>
+                  </div>
+                  <button
+                    onClick={() => navigate("/report")}
+                    className="w-full flex items-center justify-center gap-1.5 bg-emerald-500/15 border border-emerald-500/20 py-2 text-[11px] font-medium text-emerald-400 transition-colors hover:bg-emerald-500/25"
+                  >
+                    View Report
+                    <ArrowRight className="h-3 w-3" />
+                  </button>
+                </motion.div>
+              )}
             </motion.div>
           </div>
         </div>
       </div>
-    </GridBackground>
+    </div>
   );
 }

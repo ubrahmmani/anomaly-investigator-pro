@@ -2,8 +2,8 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
 import { Sparkline } from "@/components/custom/Sparkline";
-import { dashboardMetrics } from "@/data/mockData";
-import AcidSquares from "@/components/AcidSquares";
+import { dashboardMetrics, revenueChartData, evidenceTimeline } from "@/data/mockData";
+import { NavBar } from "@/components/NavBar";
 import {
   AlertTriangle,
   ArrowRight,
@@ -15,10 +15,8 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import logo from "@/assets/logo.svg";
 
 const ACCENT = "#f59e0b";
-const ACCENT_DIM = "rgba(245, 158, 11, 0.12)";
 
 const metricCards: {
   key: keyof typeof dashboardMetrics;
@@ -26,99 +24,40 @@ const metricCards: {
 }[] = [
   { key: "revenue", icon: TrendingDown },
   { key: "orders", icon: TrendingUp },
-  { key: "topCategory", icon: AlertTriangle },
-  { key: "topRegion", icon: TrendingUp },
+  { key: "conversion", icon: TrendingUp },
+  { key: "anomalyScore", icon: AlertTriangle },
 ];
 
 export default function Dashboard() {
   const navigate = useNavigate();
 
   return (
-    <div className="relative min-h-screen">
-      {/* Background — AcidSquares effect at low opacity over near-black */}
-      <div className="fixed inset-0 z-0 bg-[#09090b]">
-        <div className="absolute inset-0 opacity-[0.15]">
-          <AcidSquares
-            color1="#5227FF"
-            color2="#A855F7"
-            color3="#FFFFFF"
-            detail="medium"
-            speed={0.7}
-            waveDepth={1}
-            zoom={1.3}
-            density={10}
-            glow={1}
-            exposure={2700}
-            spread={0.3}
-            stepSize={0.002}
-            colorShift={0}
-            contrast={1}
-            brightness={1}
-            blur={0}
-            opacity={1}
-            grain
-            grainIntensity={0.05}
-            mouseInteraction
-            mouseRadius={0.35}
-            mouseStrength={0.1}
-          />
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#0a0a0c]">
+      <NavBar />
 
-      <div className="relative z-10 px-6 py-10">
-        <div className="mx-auto max-w-6xl">
-          {/* Nav Bar */}
-          <motion.nav
-            initial={{ opacity: 0, y: -10 }}
+      <div className="px-6 py-6">
+        <div className="mx-auto max-w-[1400px]">
+          {/* ── Top metrics strip ──────────────────────────────────────── */}
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8 flex items-center justify-between"
+            className="mb-5 flex items-center gap-3"
           >
-            <div className="flex items-center gap-2.5">
-              <img src={logo} alt="Anomalo Investigator Pro" className="h-5 w-5" />
-              <span className="font-mono text-xs text-white/40 tracking-widest uppercase">
-                Anomalo Investigator Pro
-              </span>
-            </div>
-            <div className="flex items-center gap-0.5">
-              {[
-                { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard", active: true },
-                { label: "Browse", icon: Search, path: "/browse" },
-                { label: "New", icon: Plus, path: "/create" },
-                { label: "Admin", icon: Shield, path: "/admin" },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => navigate(item.path)}
-                    className={
-                      item.active
-                        ? "flex items-center gap-1.5 rounded-md bg-white/[0.08] px-3 py-1.5 text-xs font-medium text-white/70 transition-colors"
-                        : "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs text-white/30 transition-colors hover:bg-white/[0.05] hover:text-white/50"
-                    }
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    {item.label}
-                  </button>
-                );
-              })}
-            </div>
-          </motion.nav>
-
-          {/* Header */}
-          <motion.header
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8"
-          >
-            <p className="font-mono text-xs text-white/30">
-              Week of August 1–7, 2026 · Last synced 2 min ago
+            <p className="font-mono text-[11px] text-white/25">
+              Week of Aug 1–7, 2026
             </p>
-          </motion.header>
+            <span className="text-white/10">·</span>
+            <p className="font-mono text-[11px] text-white/25">
+              Last synced 2m ago
+            </p>
+            <span className="text-white/10">·</span>
+            <p className="font-mono text-[11px] text-amber-400/60">
+              2 anomalies active
+            </p>
+          </motion.div>
 
-          {/* Metric Cards — plain dark cards, hairline borders, monospace data */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {/* ── Metric cards — compact strip ──────────────────────────── */}
+          <div className="grid grid-cols-2 gap-px bg-white/[0.04] border border-white/[0.06] mb-5 lg:grid-cols-4">
             {metricCards.map(({ key, icon: Icon }, i) => {
               const metric = dashboardMetrics[key];
               const isAnomaly = "isAnomaly" in metric && metric.isAnomaly;
@@ -127,214 +66,357 @@ export default function Dashboard() {
               return (
                 <motion.div
                   key={key}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + i * 0.08, duration: 0.4 }}
-                  className={
-                    isAnomaly
-                      ? "group relative rounded-lg border border-[rgba(245,158,11,0.2)] bg-[#0c0c0e] p-5"
-                      : "group relative rounded-lg border border-white/[0.06] bg-[#0c0c0e] p-5 transition-colors hover:border-white/[0.1]"
-                  }
+                  transition={{ delay: 0.05 + i * 0.05 }}
+                  className={`bg-[#0c0c10] p-4 ${
+                    isAnomaly ? "border-t-2 border-t-amber-500/40" : ""
+                  }`}
                 >
-                  <div className="relative z-10">
-                    <div className="mb-4 flex items-center justify-between">
-                      {/* Plain icon — no colored container */}
-                      <Icon className="h-4 w-4 text-white/25" />
-
-                      {isAnomaly && (
-                        <motion.div
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: 0.5 + i * 0.1, type: "spring" }}
-                          className="flex items-center gap-1 rounded-sm bg-[rgba(245,158,11,0.1)] px-1.5 py-0.5"
-                        >
-                          <AlertTriangle className="h-2.5 w-2.5 text-amber-500" />
-                          <span className="font-mono text-[9px] font-medium text-amber-500/80 uppercase tracking-wider">
-                            Anomaly
-                          </span>
-                        </motion.div>
-                      )}
-                    </div>
-
-                    <p className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-1.5">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono text-[10px] text-white/30 uppercase tracking-wider">
                       {metric.label}
-                    </p>
-
-                    {/* Monospace number */}
-                    <p className="font-mono text-xl font-semibold tracking-tight text-white mb-2">
-                      {metric.value}
-                    </p>
-
-                    <div className="flex items-center justify-between">
+                    </span>
+                    {isAnomaly && (
+                      <span className="font-mono text-[9px] text-amber-400/70 bg-amber-500/8 px-1.5 py-0.5 rounded-sm">
+                        ANOMALY
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <p className="font-mono text-xl font-semibold text-white/80 tracking-tight">
+                        {metric.value}
+                      </p>
                       <span
                         className={
-                          isNegative
-                            ? "font-mono text-[11px] text-amber-500/80"
-                            : "font-mono text-[11px] text-emerald-500/70"
+                          isNegative || (key === "anomalyScore" && metric.change > 50)
+                            ? "font-mono text-[11px] text-amber-400/70"
+                            : "font-mono text-[11px] text-emerald-400/60"
                         }
                       >
-                        {isNegative ? "↓" : "↑"} {Math.abs(metric.change)}%
+                        {key === "anomalyScore" ? "Score" : ""}
+                        {isNegative ? `↓ ${Math.abs(metric.change)}%` : ""}
+                        {!isNegative && key !== "anomalyScore" ? `↑ ${metric.change}%` : ""}
                       </span>
-
-                      <Sparkline
-                        data={metric.trend}
-                        color={isNegative ? ACCENT : "#52525b"}
-                        className="h-5 w-14"
-                      />
                     </div>
-
-                    {isAnomaly && "anomalyText" in metric && (
-                      <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.7 }}
-                        className="mt-3 border-l-2 border-amber-500/30 pl-2.5 text-[11px] text-white/30"
-                      >
-                        {metric.anomalyText}
-                      </motion.p>
-                    )}
+                    <Sparkline
+                      data={metric.trend}
+                      color={
+                        isNegative || (key === "anomalyScore" && metric.change > 50)
+                          ? ACCENT
+                          : "#52525b"
+                      }
+                      className="h-5 w-14"
+                    />
                   </div>
                 </motion.div>
               );
             })}
           </div>
 
-          {/* Revenue Area Chart */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.4 }}
-            className="mt-4 rounded-lg border border-white/[0.06] bg-[#0c0c0e] p-5"
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-medium text-white/80">Revenue Trend</h3>
-                <p className="font-mono text-[10px] text-white/25 mt-0.5">
-                  Aug 1–7, 2026
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5">
-                  <div className="h-2 w-2 rounded-full bg-amber-500/60" />
-                  <span className="font-mono text-[9px] text-white/25">Anomaly zone</span>
+          {/* ── Main area: Chart (left) + Investigation Summary (right) ── */}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_340px]">
+            {/* Revenue Chart */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="border border-white/[0.06] bg-[#0c0c10] p-5"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-[13px] font-medium text-white/60">Revenue Trend</h3>
+                  <p className="font-mono text-[10px] text-white/20 mt-0.5">
+                    Jul 28 – Aug 7, 2026 · Daily
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-2.5 w-px bg-amber-500/60" />
+                    <span className="font-mono text-[9px] text-white/20">Revenue</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-2.5 w-px bg-white/15" />
+                    <span className="font-mono text-[9px] text-white/20">Baseline</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-2 w-2 bg-amber-500/15 border border-amber-500/20" />
+                    <span className="font-mono text-[9px] text-white/20">Anomaly zone</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <DashboardAreaChart />
-          </motion.div>
 
-          {/* Anomaly Summary — plain bordered card, accent only on icon */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.4 }}
-            className="mt-4 rounded-lg border border-white/[0.06] bg-[#0c0c0e] p-5"
-          >
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500/70" />
-              <div className="flex-1">
-                <h3 className="text-sm font-medium text-white/70">
-                  2 anomalies detected this week
-                </h3>
-                <p className="mt-1 text-xs text-white/35 leading-relaxed">
-                  Revenue dropped 30%, driven by a sharp decline in Electronics
-                  sales in South Asia. Top category performance also flagged.
-                  Deploy the agent swarm to find out why — one click, under two
-                  minutes.
+              {/* Chart area — SVG-based for reliability */}
+              <div className="relative h-[240px]">
+                <DashboardChart />
+              </div>
+            </motion.div>
+
+            {/* Investigation Summary */}
+            <motion.div
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="space-y-4"
+            >
+              {/* Why card */}
+              <div className="border border-white/[0.06] bg-[#0c0c10] p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                  <span className="font-mono text-[10px] text-white/30 uppercase tracking-wider">
+                    Why did this happen?
+                  </span>
+                </div>
+                <p className="text-[13px] text-white/55 leading-relaxed mb-3">
+                  Revenue dropped 30% due to a 15% price increase on Electronics in South Asia.
                 </p>
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="font-mono text-[11px] text-emerald-400/70">94% confidence</span>
+                  <span className="text-white/10">·</span>
+                  <span className="font-mono text-[10px] text-white/25">3 queries · 327ms</span>
+                </div>
+                <button
+                  onClick={() => navigate("/report")}
+                  className="w-full flex items-center justify-center gap-1.5 border border-white/[0.08] bg-white/[0.03] py-2 text-[11px] text-white/40 transition-all hover:bg-white/[0.06] hover:text-white/60"
+                >
+                  View Full Report
+                  <ArrowRight className="h-3 w-3" />
+                </button>
+              </div>
+
+              {/* Agent status */}
+              <div className="border border-white/[0.06] bg-[#0c0c10] p-4">
+                <span className="font-mono text-[10px] text-white/25 uppercase tracking-wider block mb-3">
+                  Agent Pipeline
+                </span>
+                {[
+                  { name: "Watcher", status: "complete", color: "bg-emerald-500" },
+                  { name: "Investigator", status: "complete", color: "bg-emerald-500" },
+                  { name: "Reasoner", status: "complete", color: "bg-emerald-500" },
+                  { name: "Reporter", status: "complete", color: "bg-emerald-500" },
+                ].map((a) => (
+                  <div key={a.name} className="flex items-center justify-between py-1.5 border-b border-white/[0.03] last:border-0">
+                    <span className="text-[11px] text-white/40">{a.name}</span>
+                    <div className="flex items-center gap-1.5">
+                      <div className={`h-1.5 w-1.5 rounded-full ${a.color}`} />
+                      <span className="font-mono text-[9px] text-white/25 uppercase">
+                        {a.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  onClick={() => navigate("/investigate")}
+                  className="w-full mt-3 flex items-center justify-center gap-1.5 bg-amber-500 py-2 text-[11px] font-medium text-black transition-colors hover:bg-amber-400"
+                >
+                  Re-run Investigation
+                  <ArrowRight className="h-3 w-3" />
+                </button>
+              </div>
+
+              {/* Quick actions */}
+              <div className="border border-white/[0.06] bg-[#0c0c10] p-4">
+                <span className="font-mono text-[10px] text-white/25 uppercase tracking-wider block mb-3">
+                  Quick Actions
+                </span>
+                {[
+                  { label: "New Investigation", icon: Plus, path: "/create" },
+                  { label: "Browse Catalog", icon: Search, path: "/browse" },
+                  { label: "Admin Panel", icon: Shield, path: "/admin" },
+                ].map((action) => {
+                  const Icon = action.icon;
+                  return (
+                    <button
+                      key={action.path}
+                      onClick={() => navigate(action.path)}
+                      className="w-full flex items-center gap-2 py-2 text-left text-[11px] text-white/35 transition-colors hover:text-white/55 border-b border-white/[0.03] last:border-0"
+                    >
+                      <Icon className="h-3 w-3" />
+                      {action.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* ── Evidence Timeline ───────────────────────────────────────── */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mt-5 border border-white/[0.06] bg-[#0c0c10] p-5"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-mono text-[10px] text-white/30 uppercase tracking-wider">
+                Evidence Timeline
+              </span>
+              <span className="font-mono text-[10px] text-white/20">
+                {evidenceTimeline.length} events
+              </span>
+            </div>
+
+            <div className="relative">
+              <div className="absolute left-[3px] top-0 bottom-0 w-px bg-white/[0.06]" />
+              <div className="space-y-0">
+                {evidenceTimeline.map((item, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 + i * 0.06 }}
+                    className="relative flex items-start gap-4 py-2"
+                  >
+                    <div
+                      className={`relative z-10 mt-1 h-[6px] w-[6px] shrink-0 rounded-full ${
+                        item.type === "cause"
+                          ? "bg-amber-500"
+                          : item.type === "confirmed"
+                            ? "bg-emerald-500"
+                            : item.type === "effect"
+                              ? "bg-amber-500/40"
+                              : "bg-white/15"
+                      }`}
+                    />
+                    <div className="flex items-baseline gap-3 min-w-0">
+                      <span className="font-mono text-[10px] text-white/20 shrink-0 w-14">
+                        {item.date}
+                      </span>
+                      <span
+                        className={`text-[11px] ${
+                          item.type === "cause"
+                            ? "text-amber-400/80 font-medium"
+                            : item.type === "confirmed"
+                              ? "text-emerald-400/70 font-medium"
+                              : "text-white/40"
+                        }`}
+                      >
+                        {item.event}
+                      </span>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </motion.div>
-
-          {/* Quick Actions */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.4 }}
-            className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3"
-          >
-            {[
-              { label: "New Investigation", sub: "Deploy agents on a fresh anomaly", icon: Plus, path: "/create" },
-              { label: "Browse Catalog", sub: "Search past investigations", icon: Search, path: "/browse" },
-              { label: "Admin Panel", sub: "Manage users and settings", icon: Shield, path: "/admin" },
-            ].map((action) => {
-              const Icon = action.icon;
-              return (
-                <button
-                  key={action.path}
-                  onClick={() => navigate(action.path)}
-                  className="flex items-center gap-3 rounded-lg border border-white/[0.06] bg-[#0c0c0e] p-4 text-left transition-all hover:border-white/[0.12]"
-                >
-                  <Icon className="h-4 w-4 text-white/25" />
-                  <div>
-                    <p className="text-xs font-medium text-white/50">{action.label}</p>
-                    <p className="font-mono text-[10px] text-white/20">{action.sub}</p>
-                  </div>
-                </button>
-              );
-            })}
-          </motion.div>
-
-          {/* CTA Button — flat accent, sharp corners */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.85, duration: 0.4 }}
-            className="mt-8 flex justify-center"
-          >
-            <button
-              onClick={() => navigate("/investigate")}
-              className="group flex items-center gap-2.5 rounded-md bg-amber-500 px-6 py-3 text-sm font-medium text-black transition-all hover:bg-amber-400"
-            >
-              Start Investigation
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-            </button>
-          </motion.div>
-
-          {/* Footer */}
-          <p className="mt-8 text-center font-mono text-[10px] text-white/15">
-            Powered by Exasol · All analysis runs on Exasol Personal
-          </p>
         </div>
       </div>
     </div>
   );
 }
 
-import { AreaChart } from "@/components/charts/area-chart";
-import { Area } from "@/components/charts/area";
-import { Grid } from "@/components/charts/grid";
-import { XAxis } from "@/components/charts/x-axis";
+// ── SVG Chart: Revenue with anomaly overlay ──────────────────────────────────
+function DashboardChart() {
+  const data = revenueChartData;
+  const w = 900;
+  const h = 220;
+  const padL = 50;
+  const padR = 20;
+  const padT = 10;
+  const padB = 30;
+  const chartW = w - padL - padR;
+  const chartH = h - padT - padB;
 
-/** Revenue trend — flat amber line, subtle single-color fill, no gradient */
-function DashboardAreaChart() {
-  const chartData = [
-    { date: "Aug 1", revenue: 198000 },
-    { date: "Aug 2", revenue: 205000 },
-    { date: "Aug 3", revenue: 192000 },
-    { date: "Aug 4", revenue: 210000 },
-    { date: "Aug 5", revenue: 168000 },
-    { date: "Aug 6", revenue: 142000 },
-    { date: "Aug 7", revenue: 135000 },
-  ];
+  const maxRev = Math.max(...data.map((d) => d.baseline)) * 1.1;
+  const minRev = 0;
+
+  const x = (i: number) => padL + (i / (data.length - 1)) * chartW;
+  const y = (v: number) => padT + chartH - ((v - minRev) / (maxRev - minRev)) * chartH;
+
+  const revenuePoints = data.map((d, i) => `${x(i)},${y(d.revenue)}`).join(" ");
+  const baselinePoints = data.map((d, i) => `${x(i)},${y(d.baseline)}`).join(" ");
+
+  // Anomaly zone polygon (fills the gap between baseline and revenue during anomaly)
+  const anomalyData = data.filter((d) => d.anomaly);
+  const firstAnomalyIdx = data.findIndex((d) => d.anomaly);
+  const lastAnomalyIdx = data.length - 1;
+
+  // Area path for revenue
+  const revenueArea =
+    `M ${x(0)},${y(0)} ` +
+    data.map((d, i) => `L ${x(i)},${y(d.revenue)}`).join(" ") +
+    ` L ${x(lastAnomalyIdx)},${y(0)} Z`;
+
+  // Anomaly zone fill (between baseline and actual during anomaly)
+  let anomalyPath = "";
+  if (anomalyData.length > 0) {
+    anomalyPath =
+      `M ${x(firstAnomalyIdx)},${y(data[firstAnomalyIdx].baseline)} ` +
+      anomalyData.map((d, i) => `L ${x(firstAnomalyIdx + i)},${y(d.revenue)}`).join(" ") +
+      ` L ${x(lastAnomalyIdx)},${y(data[lastAnomalyIdx].baseline)} Z`;
+  }
+
+  // Y-axis ticks
+  const yTicks = [0, 50000, 100000, 150000, 200000];
 
   return (
-    <div className="h-[200px] w-full">
-      <AreaChart
-        data={chartData}
-        xDataKey="date"
-        aspectRatio="3 / 1"
-        loadingLabel="Loading revenue data..."
-      >
-        <Grid horizontal vertical={false} numTicksRows={5} />
-        <XAxis />
-        <Area
-          dataKey="revenue"
-          fill="rgba(245, 158, 11, 0.12)"
-          stroke={ACCENT}
-          strokeWidth={1.5}
-        />
-      </AreaChart>
-    </div>
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+      {/* Grid lines */}
+      {yTicks.map((tick) => (
+        <g key={tick}>
+          <line x1={padL} y1={y(tick)} x2={w - padR} y2={y(tick)} stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+          <text x={padL - 8} y={y(tick) + 3} textAnchor="end" fill="rgba(255,255,255,0.18)" fontSize="9" fontFamily="monospace">
+            {tick >= 1000 ? `$${tick / 1000}k` : `$${tick}`}
+          </text>
+        </g>
+      ))}
+
+      {/* X-axis labels */}
+      {data.map((d, i) => (
+        <text key={i} x={x(i)} y={h - 8} textAnchor="middle" fill="rgba(255,255,255,0.2)" fontSize="9" fontFamily="monospace">
+          {d.date}
+        </text>
+      ))}
+
+      {/* Anomaly zone highlight */}
+      {anomalyPath && (
+        <path d={anomalyPath} fill="rgba(245, 158, 11, 0.08)" stroke="none" />
+      )}
+
+      {/* Baseline (dashed) */}
+      <polyline
+        points={baselinePoints}
+        fill="none"
+        stroke="rgba(255,255,255,0.1)"
+        strokeWidth="1"
+        strokeDasharray="4,3"
+      />
+
+      {/* Revenue area fill */}
+      <path d={revenueArea} fill="url(#revGrad)" />
+
+      {/* Revenue line */}
+      <polyline
+        points={revenuePoints}
+        fill="none"
+        stroke={ACCENT}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      {/* Anomaly dot */}
+      {anomalyData.length > 0 && (
+        <>
+          <circle cx={x(firstAnomalyIdx)} cy={y(data[firstAnomalyIdx].revenue)} r="3" fill={ACCENT} stroke="#0c0c10" strokeWidth="1.5" />
+          {/* Anomaly annotation */}
+          <g transform={`translate(${x(firstAnomalyIdx) + 8}, ${y(data[firstAnomalyIdx].revenue) - 12})`}>
+            <rect x="0" y="-8" width="64" height="14" rx="1" fill="rgba(245,158,11,0.12)" stroke="rgba(245,158,11,0.2)" strokeWidth="0.5" />
+            <text x="4" y="2" fill="#f59e0b" fontSize="8" fontFamily="monospace" fontWeight="500">
+              −30% decline
+            </text>
+          </g>
+        </>
+      )}
+
+      {/* Gradient def */}
+      <defs>
+        <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={ACCENT} stopOpacity="0.12" />
+          <stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+    </svg>
   );
 }
