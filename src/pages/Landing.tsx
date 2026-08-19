@@ -8,75 +8,62 @@ import {
   Search,
   Brain,
   FileText,
-  AlertTriangle,
-  TrendingDown,
-  ShoppingCart,
   BarChart3,
-  MessageSquare,
 } from "lucide-react";
 import logo from "@/assets/logo.svg";
-
-// ─── Investigation Timeline (horizontal) ─────────────────────────────────────
-const investigationFlow = [
-  { label: "Revenue drops 30%", color: "bg-amber-500" },
-  { label: "Electronics identified", color: "bg-amber-500/70" },
-  { label: "South Asia isolated", color: "bg-amber-500/50" },
-  { label: "Orders down 60%", color: "bg-amber-500/70" },
-  { label: "Price +15% detected", color: "bg-amber-500" },
-  { label: "Root cause confirmed", color: "bg-emerald-500" },
-];
 
 // ─── Agent Pipeline ──────────────────────────────────────────────────────────
 const agents = [
   {
     icon: Eye,
     label: "Watcher",
-    purpose: "Detects anomalies",
-    input: "Live metrics stream",
-    output: "Anomaly flagged",
-    color: "text-amber-400",
-    borderColor: "border-amber-500/20",
-    bgColor: "bg-amber-500/5",
+    purpose: "Detects anomalies in live metrics",
+    input: "Revenue, Orders, Conversion — real-time stream",
+    output: "Anomaly flagged with context",
+    color: "text-amber-500/80",
   },
   {
     icon: Search,
     label: "Investigator",
-    purpose: "Queries relevant dimensions",
-    input: "Anomaly context",
-    output: "Dimensional data",
-    color: "text-blue-400",
-    borderColor: "border-blue-500/20",
-    bgColor: "bg-blue-500/5",
+    purpose: "Writes and executes SQL queries against Exasol",
+    input: "Anomaly context from Watcher",
+    output: "Dimensional breakdown (category × region × product × time)",
+    color: "text-zinc-300",
   },
   {
     icon: Brain,
     label: "Reasoner",
-    purpose: "Cross-checks evidence",
-    input: "Query results",
-    output: "Root cause hypothesis",
-    color: "text-purple-400",
-    borderColor: "border-purple-500/20",
-    bgColor: "bg-purple-500/5",
+    purpose: "Cross-references evidence to form a hypothesis",
+    input: "Query results from Investigator",
+    output: "Root cause hypothesis with confidence score",
+    color: "text-zinc-300",
   },
   {
     icon: FileText,
     label: "Reporter",
-    purpose: "Produces explanation",
-    input: "Hypothesis + data",
-    output: "Plain-English report",
-    color: "text-emerald-400",
-    borderColor: "border-emerald-500/20",
-    bgColor: "bg-emerald-500/5",
+    purpose: "Produces a plain-English explanation with data",
+    input: "Hypothesis + supporting data",
+    output: "Investigation report with evidence chain",
+    color: "text-zinc-300",
   },
 ];
 
-// ─── Mini Sparkline ──────────────────────────────────────────────────────────
-function MiniChart({ data, color }: { data: number[]; color: string }) {
+// ─── Investigation Flow ──────────────────────────────────────────────────────
+const investigationFlow = [
+  { label: "Revenue ↓ 30%", status: "detected" as const },
+  { label: "Electronics", status: "isolated" as const },
+  { label: "South Asia", status: "isolated" as const },
+  { label: "Orders ↓ 60%", status: "evidence" as const },
+  { label: "Price +15%", status: "cause" as const },
+  { label: "Root cause", status: "confirmed" as const },
+];
+
+function MiniChart({ data }: { data: number[] }) {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
   const w = 200;
-  const h = 48;
+  const h = 40;
   const pts = data
     .map(
       (v, i) =>
@@ -85,64 +72,8 @@ function MiniChart({ data, color }: { data: number[]; color: string }) {
     .join(" ");
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-full" preserveAspectRatio="none">
-      <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" />
+      <polyline points={pts} fill="none" stroke="rgba(234,179,8,0.5)" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
-  );
-}
-
-// ─── SQL Preview ─────────────────────────────────────────────────────────────
-function SQLPreview() {
-  return (
-    <div className="font-mono text-[11px] leading-relaxed">
-      <div className="text-white/25 mb-1">{"-- Investigator Agent"}</div>
-      <div>
-        <span className="text-purple-400/80">SELECT</span>{" "}
-        <span className="text-white/60">category, region,</span>
-      </div>
-      <div>
-        {"  "}
-        <span className="text-purple-400/80">SUM</span>
-        <span className="text-white/60">(revenue)</span>
-      </div>
-      <div>
-        <span className="text-purple-400/80">FROM</span>{" "}
-        <span className="text-white/60">sales</span>
-      </div>
-      <div>
-        <span className="text-purple-400/80">WHERE</span>{" "}
-        <span className="text-white/60">date &gt;= </span>
-        <span className="text-amber-400/70">"2026-08-01"</span>
-      </div>
-      <div>
-        <span className="text-purple-400/80">GROUP BY</span>{" "}
-        <span className="text-white/60">category, region</span>
-      </div>
-      <div className="text-emerald-400/50 mt-1">{"→ 142ms on Exasol"}</div>
-    </div>
-  );
-}
-
-// ─── Report Preview ──────────────────────────────────────────────────────────
-function ReportPreview() {
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2">
-        <span className="text-[9px] font-mono font-medium text-amber-400/80 tracking-wider uppercase">
-          Root Cause Confirmed
-        </span>
-        <span className="text-[9px] font-mono text-white/30">94% confidence</span>
-      </div>
-      <p className="text-[12px] text-white/60 leading-relaxed">
-        Revenue dropped 30% due to a 15% price increase on Electronics in South Asia.
-      </p>
-      <div className="flex gap-3 mt-2">
-        {["Price +15%", "Orders −60%", "Revenue −30%"].map((s) => (
-          <span key={s} className="font-mono text-[10px] text-amber-400/60 bg-amber-500/5 border border-amber-500/10 rounded-sm px-1.5 py-0.5">
-            {s}
-          </span>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -150,28 +81,28 @@ export default function Landing() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c]">
+    <div className="min-h-screen bg-[#09090b]">
       {/* ── Navigation ─────────────────────────────────────────────────── */}
-      <nav className="flex items-center justify-between border-b border-white/[0.04] px-6 py-3">
-        <div className="flex items-center gap-2.5">
-          <img src={logo} alt="Anomalo" className="h-4 w-4" />
-          <span className="font-mono text-[11px] font-medium text-white/50 tracking-widest uppercase">
+      <nav className="flex items-center justify-between border-b border-zinc-800/60 px-5 h-11">
+        <div className="flex items-center gap-2">
+          <img src={logo} alt="Anomalo" className="h-3.5 w-3.5 opacity-60" />
+          <span className="text-[11px] font-medium text-zinc-400 tracking-wide">
             Anomalo
           </span>
-          <span className="font-mono text-[10px] text-amber-500/60 tracking-wider">
-            PRO
+          <span className="text-[9px] font-mono text-zinc-600 tracking-wider uppercase">
+            Pro
           </span>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/browse")}
-            className="text-[11px] text-white/30 hover:text-white/50 transition-colors"
+            className="text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors"
           >
             Catalog
           </button>
           <button
             onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-1.5 rounded-sm bg-amber-500 px-3 py-1.5 text-[11px] font-medium text-black transition-colors hover:bg-amber-400"
+            className="flex items-center gap-1.5 bg-amber-500 px-3 py-1.5 text-[11px] font-medium text-zinc-950 hover:bg-amber-400 transition-colors"
           >
             Open Dashboard
             <ArrowUpRight className="h-3 w-3" />
@@ -179,19 +110,19 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="px-6 pt-20 pb-16 border-b border-white/[0.04]">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 items-center">
-            {/* Left: Copy */}
-            <div>
+      {/* ── Hero — Asymmetric ─────────────────────────────────────────── */}
+      <section className="border-b border-zinc-800/40">
+        <div className="mx-auto max-w-6xl px-6 pt-20 pb-16">
+          <div className="grid grid-cols-1 gap-16 lg:grid-cols-[1fr_1.1fr] items-start">
+            {/* Left: Product statement */}
+            <div className="pt-4">
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="mb-4 inline-flex items-center gap-1.5 border border-amber-500/15 bg-amber-500/5 px-2.5 py-1"
+                className="mb-6 inline-flex items-center gap-1.5"
               >
-                <div className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
-                <span className="font-mono text-[10px] text-amber-400/70 tracking-wider uppercase">
+                <div className="h-1.5 w-1.5 bg-amber-500 animate-pulse" />
+                <span className="font-mono text-[10px] text-zinc-500 tracking-wider uppercase">
                   Autonomous anomaly investigation
                 </span>
               </motion.div>
@@ -200,22 +131,22 @@ export default function Landing() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-4xl font-bold leading-[1.15] tracking-tight text-white/90 sm:text-5xl"
+                className="text-[2.8rem] font-bold leading-[1.1] tracking-tight text-zinc-100"
               >
                 Your numbers changed.
                 <br />
-                <span className="text-amber-400">Find out why.</span>
+                <span className="text-amber-500">Find out why.</span>
               </motion.h1>
 
               <motion.p
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="mt-5 text-[15px] text-white/35 leading-relaxed max-w-lg"
+                className="mt-5 text-[14px] text-zinc-500 leading-relaxed max-w-md"
               >
-                Anomalo deploys an autonomous agent system that detects anomalies in your data,
-                investigates root causes by querying Exasol directly, and delivers an
-                evidence-backed explanation — no SQL required.
+                Anomalo deploys four autonomous agents that detect anomalies,
+                investigate root causes by querying Exasol directly, and deliver
+                evidence-backed explanations — no SQL required.
               </motion.p>
 
               <motion.div
@@ -226,39 +157,58 @@ export default function Landing() {
               >
                 <button
                   onClick={() => navigate("/dashboard")}
-                  className="group flex items-center gap-2 bg-amber-500 px-5 py-2.5 text-[13px] font-medium text-black transition-colors hover:bg-amber-400"
+                  className="group flex items-center gap-2 bg-amber-500 px-5 py-2.5 text-[13px] font-medium text-zinc-950 hover:bg-amber-400 transition-colors"
                 >
                   Investigate an anomaly
                   <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                 </button>
                 <a
                   href="#how-it-works"
-                  className="flex items-center gap-1.5 border border-white/[0.08] bg-white/[0.03] px-5 py-2.5 text-[13px] text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white/60"
+                  className="flex items-center gap-1.5 border border-zinc-800 px-5 py-2.5 text-[13px] text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 transition-colors"
                 >
                   See how it works
                 </a>
               </motion.div>
+
+              {/* Trust indicators */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mt-10 flex items-center gap-6"
+              >
+                {[
+                  { label: "All analysis on Exasol" },
+                  { label: "Under 2 minutes" },
+                  { label: "94% avg confidence" },
+                  { label: "Zero SQL required" },
+                ].map((item) => (
+                  <div key={item.label} className="text-[11px] text-zinc-600">
+                    {item.label}
+                  </div>
+                ))}
+              </motion.div>
             </div>
 
-            {/* Right: Mini Investigation Flow */}
+            {/* Right: Live investigation visualization */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
-              className="border border-white/[0.06] bg-[#0e0e12] p-5"
+              className="border border-zinc-800/60 bg-zinc-900/40 p-5"
             >
               <div className="flex items-center gap-2 mb-4">
-                <div className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
-                <span className="font-mono text-[10px] text-white/30 tracking-wider uppercase">
+                <div className="h-1.5 w-1.5 bg-amber-500 animate-pulse" />
+                <span className="font-mono text-[10px] text-zinc-500 tracking-wider uppercase">
                   Investigation in progress
                 </span>
-                <span className="ml-auto font-mono text-[10px] text-emerald-400/60">
+                <span className="ml-auto font-mono text-[10px] text-zinc-600">
                   1 min 42 sec
                 </span>
               </div>
 
-              {/* Mini metric strip */}
-              <div className="grid grid-cols-4 gap-2 mb-4">
+              {/* Metric strip */}
+              <div className="grid grid-cols-4 gap-3 mb-4">
                 {[
                   { label: "Revenue", value: "−30%", anomaly: true },
                   { label: "Electronics", value: "−45%", anomaly: true },
@@ -266,15 +216,13 @@ export default function Landing() {
                   { label: "Price", value: "+15%", anomaly: false },
                 ].map((m) => (
                   <div key={m.label} className="text-center">
-                    <div className="font-mono text-[9px] text-white/25 uppercase tracking-wider mb-0.5">
+                    <div className="font-mono text-[9px] text-zinc-600 uppercase tracking-wider mb-0.5">
                       {m.label}
                     </div>
                     <div
-                      className={
-                        m.anomaly
-                          ? "font-mono text-sm font-medium text-amber-400"
-                          : "font-mono text-sm font-medium text-white/50"
-                      }
+                      className={`font-mono text-sm font-semibold ${
+                        m.anomaly ? "text-amber-500" : "text-zinc-400"
+                      }`}
                     >
                       {m.value}
                     </div>
@@ -282,31 +230,36 @@ export default function Landing() {
                 ))}
               </div>
 
-              {/* Agent status strip */}
-              <div className="flex items-center gap-1 mb-4">
+              {/* Agent progress */}
+              <div className="flex items-center gap-0.5 mb-4">
                 {agents.map((a, i) => (
-                  <div key={a.label} className="flex items-center gap-1 flex-1">
+                  <div key={a.label} className="flex items-center flex-1">
                     <div
-                      className={`h-1.5 flex-1 rounded-full ${
-                        i < 3 ? "bg-emerald-500/60" : "bg-white/10"
+                      className={`h-1 flex-1 ${
+                        i < 3 ? "bg-emerald-500/50" : "bg-zinc-800"
                       }`}
                     />
                   </div>
                 ))}
               </div>
 
-              {/* Conclusion */}
-              <div className="border-t border-white/[0.05] pt-3">
-                <div className="text-[9px] font-mono text-white/25 uppercase tracking-wider mb-1">
+              {/* Root cause */}
+              <div className="border-t border-zinc-800/60 pt-3">
+                <div className="text-[9px] font-mono text-zinc-600 uppercase tracking-wider mb-1">
                   Root cause identified
                 </div>
-                <p className="text-[12px] text-white/60 leading-relaxed">
-                  Revenue decline traced to a 15% price increase in Electronics across South Asia.
+                <p className="text-[12px] text-zinc-400 leading-relaxed">
+                  Revenue decline traced to a 15% price increase in Electronics
+                  across South Asia.
                 </p>
-                <div className="mt-2 flex items-center gap-1.5">
-                  <span className="text-[9px] font-mono text-emerald-400/70">94% confidence</span>
-                  <span className="text-white/10">·</span>
-                  <span className="text-[9px] font-mono text-white/25">3 queries · 327ms avg</span>
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-[9px] font-mono text-emerald-500/70">
+                    94% confidence
+                  </span>
+                  <span className="text-zinc-700">·</span>
+                  <span className="text-[9px] font-mono text-zinc-600">
+                    3 queries · 327ms avg
+                  </span>
                 </div>
               </div>
             </motion.div>
@@ -315,47 +268,59 @@ export default function Landing() {
       </section>
 
       {/* ── Investigation Timeline ────────────────────────────────────── */}
-      <section className="px-6 py-12 border-b border-white/[0.04]">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-6">
-            <h2 className="text-sm font-semibold text-white/70">How an investigation flows</h2>
-            <p className="mt-1 text-[12px] text-white/30">
+      <section className="border-b border-zinc-800/40">
+        <div className="mx-auto max-w-6xl px-6 py-12">
+          <div className="mb-8">
+            <h2 className="text-[13px] font-semibold text-zinc-300">
+              How an investigation flows
+            </h2>
+            <p className="mt-1 text-[12px] text-zinc-600">
               From anomaly detection to root cause — fully autonomous, under 2 minutes.
             </p>
           </div>
 
           <div className="relative">
-            {/* Connection line */}
-            <div className="absolute top-3 left-0 right-0 h-px bg-white/[0.06]" />
+            <div className="absolute top-2.5 left-0 right-0 h-px bg-zinc-800/60" />
 
             <div className="relative grid grid-cols-6 gap-3">
-              {investigationFlow.map((step, i) => (
-                <motion.div
-                  key={step.label}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
-                  className="relative text-center"
-                >
-                  <div className="relative z-10 mx-auto mb-2 h-2 w-2">
-                    <div className={`h-full w-full rounded-full ${step.color}`} />
-                  </div>
-                  <p className="font-mono text-[10px] text-white/40 leading-tight">
-                    {step.label}
-                  </p>
-                </motion.div>
-              ))}
+              {investigationFlow.map((step, i) => {
+                const colors = {
+                  detected: "bg-amber-500",
+                  isolated: "bg-zinc-500",
+                  evidence: "bg-zinc-500",
+                  cause: "bg-amber-500/70",
+                  confirmed: "bg-emerald-500",
+                };
+                return (
+                  <motion.div
+                    key={step.label}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.06 }}
+                    className="relative text-center"
+                  >
+                    <div className="relative z-10 mx-auto mb-2 h-2 w-2">
+                      <div className={`h-full w-full ${colors[step.status]}`} />
+                    </div>
+                    <p className="font-mono text-[10px] text-zinc-500 leading-tight">
+                      {step.label}
+                    </p>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Product Capabilities (visual) ─────────────────────────────── */}
-      <section className="px-6 py-12 border-b border-white/[0.04]">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-6">
-            <h2 className="text-sm font-semibold text-white/70">What the product does</h2>
+      {/* ── Product Capabilities (visual examples) ─────────────────────── */}
+      <section className="border-b border-zinc-800/40">
+        <div className="mx-auto max-w-6xl px-6 py-12">
+          <div className="mb-8">
+            <h2 className="text-[13px] font-semibold text-zinc-300">
+              What the product does
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -364,23 +329,24 @@ export default function Landing() {
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="border border-white/[0.06] bg-[#0e0e12] p-4"
+              className="border border-zinc-800/60 bg-zinc-900/30 p-4"
             >
               <div className="flex items-center gap-2 mb-3">
-                <BarChart3 className="h-3.5 w-3.5 text-white/30" />
-                <span className="font-mono text-[10px] text-white/30 uppercase tracking-wider">
+                <BarChart3 className="h-3.5 w-3.5 text-zinc-500" />
+                <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-wider">
                   Live Dashboard
                 </span>
               </div>
-              <div className="h-24 mb-3">
-                <MiniChart
-                  data={[82, 85, 78, 91, 88, 72, 51]}
-                  color="#f59e0b"
-                />
+              <div className="h-20 mb-3">
+                <MiniChart data={[82, 85, 78, 91, 88, 72, 51]} />
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="font-mono text-lg font-semibold text-white/80">$1.24M</span>
-                <span className="font-mono text-[10px] text-amber-400/70">−30%</span>
+                <span className="font-mono text-lg font-semibold text-zinc-200">
+                  $1.24M
+                </span>
+                <span className="font-mono text-[10px] text-amber-500/70">
+                  −30%
+                </span>
               </div>
             </motion.div>
 
@@ -389,17 +355,33 @@ export default function Landing() {
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.08 }}
-              className="border border-white/[0.06] bg-[#0e0e12] p-4"
+              transition={{ delay: 0.06 }}
+              className="border border-zinc-800/60 bg-zinc-900/30 p-4"
             >
               <div className="flex items-center gap-2 mb-3">
-                <Search className="h-3.5 w-3.5 text-white/30" />
-                <span className="font-mono text-[10px] text-white/30 uppercase tracking-wider">
+                <Search className="h-3.5 w-3.5 text-zinc-500" />
+                <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-wider">
                   Autonomous SQL
                 </span>
               </div>
-              <div className="h-24 flex items-end">
-                <SQLPreview />
+              <div className="h-20 font-mono text-[10px] leading-relaxed">
+                <div className="text-zinc-600 mb-1">{"-- Investigator Agent"}</div>
+                <div>
+                  <span className="text-zinc-400">SELECT</span>{" "}
+                  <span className="text-zinc-500">category, region,</span>
+                </div>
+                <div>
+                  {"  "}
+                  <span className="text-zinc-400">SUM</span>
+                  <span className="text-zinc-500">(revenue)</span>
+                </div>
+                <div>
+                  <span className="text-zinc-400">FROM</span>{" "}
+                  <span className="text-zinc-500">sales</span>
+                </div>
+                <div className="text-emerald-500/50 mt-1">
+                  {"→ 142ms on Exasol"}
+                </div>
               </div>
             </motion.div>
 
@@ -408,17 +390,38 @@ export default function Landing() {
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.16 }}
-              className="border border-white/[0.06] bg-[#0e0e12] p-4"
+              transition={{ delay: 0.12 }}
+              className="border border-zinc-800/60 bg-zinc-900/30 p-4"
             >
               <div className="flex items-center gap-2 mb-3">
-                <FileText className="h-3.5 w-3.5 text-white/30" />
-                <span className="font-mono text-[10px] text-white/30 uppercase tracking-wider">
+                <FileText className="h-3.5 w-3.5 text-zinc-500" />
+                <span className="font-mono text-[10px] text-zinc-500 uppercase tracking-wider">
                   Plain-English Reports
                 </span>
               </div>
-              <div className="h-24 flex items-end">
-                <ReportPreview />
+              <div className="h-20 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-[9px] font-medium text-amber-500/70 tracking-wider uppercase">
+                    Root Cause Confirmed
+                  </span>
+                  <span className="font-mono text-[9px] text-zinc-600">
+                    94%
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-500 leading-relaxed">
+                  Revenue dropped 30% due to a 15% price increase on Electronics
+                  in South Asia.
+                </p>
+                <div className="flex gap-2 mt-1">
+                  {["Price +15%", "Orders −60%", "Revenue −30%"].map((s) => (
+                    <span
+                      key={s}
+                      className="font-mono text-[9px] text-zinc-500 bg-zinc-800/50 border border-zinc-800 px-1.5 py-0.5"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
               </div>
             </motion.div>
           </div>
@@ -426,11 +429,13 @@ export default function Landing() {
       </section>
 
       {/* ── Agent Pipeline ────────────────────────────────────────────── */}
-      <section id="how-it-works" className="px-6 py-12 border-b border-white/[0.04]">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-6">
-            <h2 className="text-sm font-semibold text-white/70">Agent pipeline</h2>
-            <p className="mt-1 text-[12px] text-white/30">
+      <section id="how-it-works" className="border-b border-zinc-800/40">
+        <div className="mx-auto max-w-6xl px-6 py-12">
+          <div className="mb-8">
+            <h2 className="text-[13px] font-semibold text-zinc-300">
+              Agent pipeline
+            </h2>
+            <p className="mt-1 text-[12px] text-zinc-600">
               Four specialized agents. One autonomous pipeline. Zero manual queries.
             </p>
           </div>
@@ -444,12 +449,18 @@ export default function Landing() {
                   initial={{ opacity: 0, x: -12 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className={`grid grid-cols-12 gap-4 border-l-2 ${agent.borderColor} pl-4 py-4 ${
-                    i < agents.length - 1 ? "border-b border-white/[0.03]" : ""
+                  transition={{ delay: i * 0.08 }}
+                  className={`grid grid-cols-12 gap-4 border-l-2 ${
+                    i === 0
+                      ? "border-l-amber-500/40"
+                      : "border-l-zinc-800/40"
+                  } pl-4 py-4 ${
+                    i < agents.length - 1
+                      ? "border-b border-zinc-800/20"
+                      : ""
                   }`}
                 >
-                  {/* Agent name + icon */}
+                  {/* Agent name */}
                   <div className="col-span-3">
                     <div className="flex items-center gap-2 mb-1">
                       <Icon className={`h-4 w-4 ${agent.color}`} />
@@ -457,23 +468,29 @@ export default function Landing() {
                         {agent.label}
                       </span>
                     </div>
-                    <span className="text-[11px] text-white/30">{agent.purpose}</span>
+                    <span className="text-[11px] text-zinc-600">
+                      {agent.purpose}
+                    </span>
                   </div>
 
                   {/* Input */}
                   <div className="col-span-4">
-                    <span className="font-mono text-[9px] text-white/20 uppercase tracking-wider block mb-0.5">
+                    <span className="font-mono text-[9px] text-zinc-600 uppercase tracking-wider block mb-0.5">
                       Input
                     </span>
-                    <span className="text-[11px] text-white/45">{agent.input}</span>
+                    <span className="text-[11px] text-zinc-500">
+                      {agent.input}
+                    </span>
                   </div>
 
                   {/* Output */}
                   <div className="col-span-5">
-                    <span className="font-mono text-[9px] text-white/20 uppercase tracking-wider block mb-0.5">
+                    <span className="font-mono text-[9px] text-zinc-600 uppercase tracking-wider block mb-0.5">
                       Output
                     </span>
-                    <span className="text-[11px] text-white/45">{agent.output}</span>
+                    <span className="text-[11px] text-zinc-500">
+                      {agent.output}
+                    </span>
                   </div>
                 </motion.div>
               );
@@ -482,45 +499,20 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── Trust / Technical Details ─────────────────────────────────── */}
-      <section className="px-6 py-12 border-b border-white/[0.04]">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
-            {[
-              { label: "All analysis on Exasol", sub: "Every SQL query runs on Exasol Personal" },
-              { label: "Under 2 minutes", sub: "End-to-end from detection to report" },
-              { label: "94% avg confidence", sub: "Hypothesis backed by independent data slices" },
-              { label: "Zero SQL required", sub: "Agent writes and executes its own queries" },
-            ].map((item, i) => (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <div className="text-[12px] font-medium text-white/50 mb-0.5">{item.label}</div>
-                <div className="text-[11px] text-white/25">{item.sub}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── CTA ──────────────────────────────────────────────────────── */}
       <section className="px-6 py-16">
         <div className="mx-auto max-w-6xl flex items-end justify-between">
           <div>
-            <h2 className="text-xl font-bold text-white/80 mb-1">
+            <h2 className="text-xl font-bold text-zinc-200 mb-1">
               Stop guessing. Start investigating.
             </h2>
-            <p className="text-[13px] text-white/30">
+            <p className="text-[13px] text-zinc-500">
               See how Anomalo traces a revenue anomaly to its root cause — automatically.
             </p>
           </div>
           <button
             onClick={() => navigate("/dashboard")}
-            className="group flex items-center gap-2 bg-amber-500 px-5 py-2.5 text-[13px] font-medium text-black transition-colors hover:bg-amber-400 shrink-0"
+            className="group flex items-center gap-2 bg-amber-500 px-5 py-2.5 text-[13px] font-medium text-zinc-950 hover:bg-amber-400 transition-colors shrink-0"
           >
             Launch Dashboard
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -529,15 +521,15 @@ export default function Landing() {
       </section>
 
       {/* ── Footer ───────────────────────────────────────────────────── */}
-      <footer className="border-t border-white/[0.04] px-6 py-4">
+      <footer className="border-t border-zinc-800/40 px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src={logo} alt="Anomalo" className="h-3.5 w-3.5" />
-            <span className="font-mono text-[10px] text-white/20">
+            <img src={logo} alt="Anomalo" className="h-3 w-3 opacity-40" />
+            <span className="font-mono text-[10px] text-zinc-600">
               Anomalo Investigator Pro
             </span>
           </div>
-          <span className="font-mono text-[10px] text-white/15">
+          <span className="font-mono text-[10px] text-zinc-700">
             Exasol AI Build Challenge 2026
           </span>
         </div>

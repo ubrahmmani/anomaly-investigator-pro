@@ -319,6 +319,9 @@ export const reportData = {
 
   rootCause: "Price increase on premium Electronics products",
   confidence: 94,
+  queriesExecuted: 4,
+  recordsAnalyzed: 2100000,
+  dimensionsSliced: 4,
 
   evidenceChain: [
     { step: "Price +15%", detail: "Applied Aug 5 on 3 products" },

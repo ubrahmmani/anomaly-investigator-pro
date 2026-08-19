@@ -6,13 +6,13 @@ export default function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-[#09090b] flex flex-col items-center justify-center px-5">
       <div className="text-center">
-        <div className="font-mono text-5xl font-bold text-white/10 mb-4">404</div>
-        <p className="text-[13px] text-white/35 mb-4">Page not found</p>
+        <div className="font-mono text-5xl font-bold text-zinc-800 mb-4">404</div>
+        <p className="text-[13px] text-zinc-500 mb-4">Page not found</p>
         <button
           onClick={() => navigate("/dashboard")}
-          className="flex items-center gap-1.5 text-[11px] text-white/25 hover:text-white/45 transition-colors mx-auto"
+          className="flex items-center gap-1.5 text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors mx-auto"
         >
           <ArrowLeft className="h-3 w-3" />
           Back to Dashboard
